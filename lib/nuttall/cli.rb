@@ -5,10 +5,43 @@
 
 module Nuttall
   class Cli
+    def self.usage(message="Online help.", exit_code=1)
+      prog = "nuttall"
+      $stderr << <<~END
+
+        Message:
+          #{message}
+
+        Name:
+          #{prog} v#{Nuttall::Version}
+
+        Description:
+          Main management tool for Nuttall logging systems.
+
+        Usage:
+          #{prog} create
+          #{prog} start
+          #{prog} status
+          #{prog} stop
+
+        Where:
+          create => Create a new service on the current machine.
+
+          start => Start service(s) on the current machine.
+
+          status => Check status of service(s) on the current machine.
+
+          stop => Stop service(s) on the current machine.
+
+      END
+      exit(exit_code) if exit_code && exit_code >= 0
+    end
+
     attr_reader :args
 
     def initialize(args)
       @args = args
+      @config = Config.new
     end
 
     def run
@@ -20,7 +53,7 @@ module Nuttall
     end
 
     def parse_args
-      nil
+      Cli.usage
     end
   end
 end
