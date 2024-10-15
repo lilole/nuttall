@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+#
+# Copyright 2024 Dan Higgins
+# SPDX-License-Identifier: Apache-2.0
+
+dot_git = File.expand_path("../.git", __dir__)
+
+if File.exist?(dot_git)
+  gem "zeitwerk"; require "zeitwerk"
+
+  Zeitwerk::Loader.new.tap do |loader|
+    project_dir = File.expand_path("..", __dir__)
+    loader.push_dir(File.join(project_dir, "lib"))
+    loader.setup
+  end
+end
+
+exit(Nuttall::Cli.new(ARGV).run)
