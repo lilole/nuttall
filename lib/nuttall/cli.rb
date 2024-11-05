@@ -5,18 +5,18 @@
 
 module Nuttall
   class Cli
-    def self.usage(message="Online help.", exit_code=1)
+    include Common::Argie
+
+    def self.usage(message=nil, exit_code=1)
       prog = "nuttall"
       $stderr << <<~END
 
-        Message:
-          #{message}
-
-        Name:
-          #{prog} v#{Nuttall::Version}
-
         Description:
+          #{prog} v#{Nuttall::VERSION}
           Main management tool for Nuttall logging systems.
+
+        Message:
+          #{message || "Online help."}
 
         Usage:
           #{prog} create
@@ -37,7 +37,7 @@ module Nuttall
       exit(exit_code) if exit_code && exit_code >= 0
     end
 
-    attr_reader :args
+    attr_reader :args, :config
 
     def initialize(args)
       @args = args
@@ -46,6 +46,7 @@ module Nuttall
 
     def run
       parse_args
+      Core.new(config).run
       true
     rescue => e
       $stderr << e.full_message
@@ -53,7 +54,15 @@ module Nuttall
     end
 
     def parse_args
-      Cli.usage
+      argie(args) do |arg|
+        if arg.option?
+          arg.option?(%w[h ? help]) { Cli.usage }
+          Cli.usage("Invalid option: #{arg.value}") if arg.unused?
+        else
+          arg.is?(%w[create start status stop]) { config.add_operation(arg.value) }
+          Cli.usage("Invalid arg: #{arg.value}") if arg.unused?
+        end
+      end
     end
   end
 end

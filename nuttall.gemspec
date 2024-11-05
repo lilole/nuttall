@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 version = File.read(File.expand_path("VERSION", __dir__)).strip
-base_url = "https://guthub.com/lilole/nuttall"
+base_url = "https://github.com/lilole/nuttall"
 
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
@@ -18,11 +18,15 @@ Gem::Specification.new do |s|
   s.email    = "dan@danamis.com"
   s.homepage = "#{base_url}/wiki"
 
-  s.files        = Dir["CHANGELOG.md", "README.md", "LICENSE", "exe/**/*", "lib/**/{*,.[a-z]*}"]
-  s.require_path = "lib"
+  s.files = Dir[
+    "CHANGELOG.md", "README.md", "LICENSE", "VERSION",
+    "exe/**/*",
+    "lib/**/{*,.[a-z]*}"
+  ]
 
-  s.bindir      = "exe"
-  s.executables = ["nuttall"]
+  s.require_path = "lib"
+  s.bindir       = "exe"
+  s.executables  = ["nuttall"]
 
   s.rdoc_options << "--exclude" << "."
 

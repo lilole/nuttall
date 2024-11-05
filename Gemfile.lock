@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    zeitwerk (2.7.0)
+    zeitwerk (2.7.1)
 
 PLATFORMS
   ruby
