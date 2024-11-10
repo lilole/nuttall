@@ -54,9 +54,36 @@ module Nuttall
       user_file_settings(ignore_err: false)
     end
 
+    def save_user_file
+      File.write(user_file, user_file_settings.to_h.to_yaml)
+    end
+
     def user_file_defaults
+      ts = Time.now.strftime("%y%m%d_%H%M%S")
       {
-        foo: "bar"
+        container: {
+          name: "nuttall-#{ts}"
+        },
+        disk: {
+          size: {
+            start:     "1GB",
+            max:       "50%",
+            increment: "1GB"
+          },
+          encrypt: {
+            enable:    true
+          }
+        },
+        policy: {
+          retain: {
+            index:   "30d",
+            exports: "6mo"
+          },
+          discard: {
+            index:   false,
+            exports: true
+          }
+        }
       }.as_struct
     end
   end
