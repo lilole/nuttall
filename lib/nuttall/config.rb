@@ -43,7 +43,7 @@ module Nuttall
     end
 
     def user_file_settings(ignore_err: true)
-      @user_file_settings ||= YAML.load(user_file).as_struct
+      @user_file_settings ||= YAML.load(File.read(user_file)).as_struct
     rescue
       raise if ! ignore_err
       @user_file_settings ||= user_file_defaults
@@ -76,7 +76,7 @@ module Nuttall
         },
         policy: {
           retain: {
-            index:   "30d",
+            index:   "1mo",
             exports: "6mo"
           },
           discard: {
