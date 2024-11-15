@@ -7,6 +7,9 @@ require "yaml"
 
 module Nuttall
   class Config
+    include Common::FsInfo
+    include Common::HostHash
+
     FILE_BASENAME = -".nuttall"
 
     attr_reader :operations
@@ -59,10 +62,10 @@ module Nuttall
     end
 
     def user_file_defaults
-      ts = Time.now.strftime("%y%m%d_%H%M%S")
       {
         container: {
-          name: "nuttall-#{ts}"
+          name:    default_name,
+          workdir: default_workdir
         },
         disk: {
           size: {
@@ -85,6 +88,25 @@ module Nuttall
           }
         }
       }.as_struct
+    end
+
+    def default_name = @default_name ||= "nuttall-#{host_hash}"
+
+    def default_workdir
+      @default_workdir ||= begin
+        preferred = %w[/opt /var/local /var/opt /usr/local /usr/share]
+
+        infos = begin
+          preferred.map.with_index do |path, idx|
+            fs_info(path).merge(index: idx)
+          end.sort do |a, b|
+            (b[:fs_free] <=> a[:fs_free]) * 2 +
+            (a[:index]   <=> b[:index])
+          end
+        end
+
+        infos.first[:path]
+      end
     end
   end
 end
