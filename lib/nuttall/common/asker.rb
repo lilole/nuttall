@@ -65,12 +65,13 @@ module Common
         Reline.completion_proc = ->(_token) { [] }
         Reline.emacs_editing_mode
         Reline.pre_input_hook = size?(last) ? -> { Reline.insert_text(last.to_s) } : nil
-        prev_int_trap = trap("INT", "IGNORE")
         begin
           show_notes
           Reline.readline(prompt, true)
+        rescue SignalException => e
+          print "^C" if e.signo == 2 # SIGINT
+          nil
         ensure
-          String === prev_int_trap ? trap("INT", prev_int_trap) : trap("INT", &prev_int_trap)
           notes.lines.size.times { puts "" }
         end
       end
