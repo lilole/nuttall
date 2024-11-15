@@ -19,12 +19,15 @@ module Nuttall
           #{message || "Online help."}
 
         Usage:
+          #{prog} clean {exports}
           #{prog} create
           #{prog} start
           #{prog} status
           #{prog} stop
 
         Where:
+          clean => Transfer old data out of the service's disk space and remove it.
+
           create => Create a new service on the current machine.
 
           start => Start service(s) on the current machine.
