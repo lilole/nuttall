@@ -38,7 +38,7 @@ module Op
 
       stepi = -1
       while (step = steps[stepi += 1])
-        input = step[]
+        input = step[] || "--"
         if    input == "-"  then stepi = [stepi - 2, -1].max
         elsif input == "--" then raise SettingsAborted
         end
@@ -52,10 +52,20 @@ module Op
     def steps
       @steps ||= [
         -> do
+          ask("\nWork area base dir", settings, %i[container workdir], notes: <<~END)
+            - This must be on a filesystem with all necessary disk space.
+            - The default value is a preferred path chosen on the filesystem of
+              this host with the most free space.
+          END
+        end,
+
+        -> do
           ask("\nContainer name", settings, %i[container name], notes: <<~END)
             - This must be unique within the current host.
             - If you're setting up a local network of Nuttalls, then this must be
               unique within the network.
+            - The default value is a unique name on both this host and the local
+              network.
           END
         end,
 
