@@ -46,7 +46,14 @@ module Op
     end
 
     def save_settings
-      puts "\n#{settings.inspect}"
+      config.user_file = File.join(File.dirname(config.user_file), settings.container.name)
+      config.save_user_file
+      puts(<<~END)
+
+        Saved settings to #{config.user_file.inspect}.
+
+        Use the "config" subcommand to update settings later if needed.
+      END
     end
 
     def steps
@@ -72,8 +79,8 @@ module Op
         -> do
           ask("\nStarting disk size", settings, %i[disk size start], notes: <<~END)
             - This is the initial size of the virtual disk of the Nuttall container.
-            - Standard suffixes like "M", "MB", "G", "GB", etc are supported.
-            - A suffix of "%" means percent of the current filesystem at this moment.
+            - Standard suffixes like "M", "MB", "MiB", etc are supported.
+            - A suffix of "%" means percent of the work dir's filesystem.
           END
         end,
 
@@ -81,8 +88,8 @@ module Op
           ask("\nMax disk size", settings, %i[disk size max], notes: <<~END)
             - This is the max size of the virtual disk of the Nuttall container.
             - If the virtual disk size grows to this amount, it may start to fill up.
-            - Standard suffixes like "M", "MB", "G", "GB", etc are supported.
-            - A suffix of "%" means percent of the current filesystem at this moment.
+            - Standard suffixes like "M", "MB", "MiB", etc are supported.
+            - A suffix of "%" means percent of the work dir's filesystem.
           END
         end,
 
@@ -90,7 +97,7 @@ module Op
           ask("\nDisk size increment", settings, %i[disk size increment], notes: <<~END)
             - As the virtual disk fills and grows from its starting size to its max
               size, this is the amount of each growth step.
-            - Standard suffixes like "M", "MB", "G", "GB", etc are supported.
+            - Standard suffixes like "M", "MB", "MiB", etc are supported.
             - The "%" suffix is not supported here.
           END
         end,
@@ -99,8 +106,8 @@ module Op
           ask("\nEncrypt the virtual disk", settings, %i[disk encrypt enable], notes: <<~END)
             - If "true" then the container's virtual disk will be encrypted with an
               auto generated key stored only inside the container.
-            - This should usually be enabled unless you need the max possible disk
-              speed, or if you are testing with non-production log data.
+            - This should be enabled unless you need the max possible disk speed,
+              or if you are testing with non-production log data.
           END
         end,
 
@@ -118,7 +125,10 @@ module Op
             - After log entries expire from the index, they are exported to zip files
               in the container's virtual disk.
             - This defines how long those exported files are kept.
+            - Suffixes like "hours", "h", "days", "d", "weeks", "w", "months", "mo"
+              are supported.
             - Each exported file will be 1 day's worth of log entries.
+            - Running the "clean" subcommand will copy and remove exports.
           END
         end,
 
