@@ -49,16 +49,18 @@ module Common
       begin
         io_s, io_e, io_a = Array.new(3) { StringIO.new } # Capture stdout, stderr, stdout+stderr
         buff_s, buff_e = "".b, "".b # Buffers for stdout, stderr
-        lock = Mutex.new
+        stile = Mutex.new
 
         start  = -> { spawn(["bash", "#{self.class.name}-bash"], "-c", script, out: pipw_s, err: pipw_e) }
         finish = ->(_) { pipw_s.close; pipw_e.close }
 
         bufwrt = ->(buff, io) do
           io.write(buff)
-          lock.synchronize { io_a.write(buff) }
-          echo_to.write(buff) if echo_to
           errs_to.write(buff) if errs_to && io == io_e
+          stile.synchronize do
+            io_a.write(buff)
+            echo_to.write(buff) if echo_to
+          end
         end
 
         process  = Thread.new { Process::Status.wait(start[]).tap(&finish) }
@@ -74,19 +76,17 @@ module Common
       @bash_result ||= Struct.new(:exitcode, :fail?, :line, :lines, :ok?, :okout, :out, :stderr, :stdout)
       @bash_result.new.tap do |result|
         ok = stat.success?
-        out_a = (io_a.rewind; io_a.read.chomp)
-        out_s = (io_s.rewind; io_s.read.chomp)
-        out_e = (io_e.rewind; io_e.read.chomp)
+        out = { a: io_a, s: io_s, e: io_e }.map { |k, io| io.rewind; [k, io.read.chomp] }.to_h
 
         result.send("fail?=", ! ok)
         result.send("ok?=",   ok)
         result.exitcode = stat.exitstatus
-        result.lines    = out_s.split("\n")
+        result.lines    = out[:s].split("\n")
         result.line     = result.lines.last # Maybe nil
-        result.okout    = ok ? out_a : nil
-        result.out      = out_a
-        result.stderr   = out_e
-        result.stdout   = out_s
+        result.okout    = ok ? out[:a] : nil
+        result.out      = out[:a]
+        result.stderr   = out[:e]
+        result.stdout   = out[:s]
       end
     end
   end
