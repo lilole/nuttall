@@ -6,10 +6,18 @@
 module Nuttall
   module Extensions
     def self.apply
-      ::Object.respond_to?(:as_struct) or ::Object.include Object::AsStruct
+      Object.apply
     end
 
     module Object
+      def self.apply
+        ::Object.include Object::AsStruct
+        ::Object.include Object::DeepToH
+        ::Object.include Object::Visit
+      end
+
+      # Order matters
+
       module AsStruct
         def as_struct
           if respond_to?(:keys) && respond_to?(:values)
@@ -20,7 +28,25 @@ module Nuttall
             self
           end
         end
-      end
-    end
+      end # AsStruct
+
+      module Visit
+        def visit(&block)
+          if    respond_to?(:each_pair) then pairs = each_pair.to_a
+          elsif respond_to?(:each)      then pairs = each.with_index.map { |v, k| [k, v] }
+          else  return self
+          end
+          dup.tap { |self2| pairs.each { |k, v| block[self2, k, v.visit(&block)] } }
+        end
+      end # Visit
+
+      module DeepToH
+        include Visit
+
+        def deep_to_h
+          to_h.visit { |parent, k, v| parent[k] = v.to_h if v.respond_to?(:to_h) }
+        end
+      end # DeepToH
+    end # Object
   end
 end
