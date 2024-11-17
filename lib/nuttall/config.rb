@@ -58,7 +58,7 @@ module Nuttall
     end
 
     def save_user_file
-      File.write(user_file, user_file_settings.to_h.to_yaml)
+      File.write(user_file, user_file_settings.deep_to_h.to_yaml)
     end
 
     def user_file_defaults
