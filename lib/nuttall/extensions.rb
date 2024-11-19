@@ -13,10 +13,11 @@ module Nuttall
       def self.apply
         ::Object.include Object::AsStruct
         ::Object.include Object::DeepToH
+        ::Object.include Object::FalseyTruthy
         ::Object.include Object::Visit
       end
 
-      # Order matters
+      # Order matters, e.g. Visit must be defined before DeepToH
 
       module AsStruct
         def as_struct
@@ -47,6 +48,14 @@ module Nuttall
           to_h.visit { |parent, k, v| parent[k] = v.to_h if v.respond_to?(:to_h) }
         end
       end # DeepToH
+
+      module FalseyTruthy
+        @@truthy_regex = /\At(rue)?\z|\Ay(es)?\z/i
+
+        def falsey? = ! truthy?
+
+        def truthy? = (String === self) ? @@truthy_regex.match?(self.strip) : !! self
+      end # FalseyTruthy
     end # Object
   end
 end
