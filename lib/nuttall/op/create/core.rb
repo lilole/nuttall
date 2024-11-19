@@ -196,7 +196,7 @@ module Create
           step.validate = ->(input) do
             fs_dir = writable_head(settings.container.workdir)
             start_sz = config.parse_disk_size(settings.disk.size.start, fs_dir)
-            if ! (size = config.parse_disk_size(input, fs_dir, percent: false))
+            if ! (size = config.parse_disk_size(input))
               puts "\nCannot parse this disk size."
               return false
             elsif size < 1_000_000

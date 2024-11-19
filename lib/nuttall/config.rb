@@ -63,7 +63,7 @@ module Nuttall
 
     DISK_SIZE_REGEX = /\A([\d,_]+(\.[\d,_]+)?)\s*(([kmgtp])(ib|b?)?|%)?\z/.freeze
 
-    def parse_disk_size(value, dir, percent: true)
+    def parse_disk_size(value, dir=nil)
       rem = DISK_SIZE_REGEX.match(value.to_s.strip.downcase)
       return nil if ! rem
 
@@ -71,7 +71,7 @@ module Nuttall
       return num.round if ! rem[3]
 
       if rem[3] == "%"
-        return nil if ! percent
+        return nil if ! dir
         num /= 100.0
         mult = fs_info(dir)[:fs_size]
       else
