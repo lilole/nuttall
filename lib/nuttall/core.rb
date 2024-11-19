@@ -32,7 +32,7 @@ module Nuttall
     def run
       config.operations.each do |op|
         case op
-        when "create" then Op::Create.new(config).run
+        when "create" then Op::Create::Core.new(config).run
         when "start"  then raise NotImplementedError
         when "status" then raise NotImplementedError
         when "stop"   then raise NotImplementedError
