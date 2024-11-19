@@ -10,8 +10,6 @@ module Nuttall
     include Common::FsInfo
     include Common::HostHash
 
-    FILE_BASENAME = -".nuttall"
-
     attr_reader :operations
     attr_writer :user_file
 
@@ -26,13 +24,15 @@ module Nuttall
     end
 
     def valid_operation?(name)
-      %w[create start status stop].member?(name)
+      %w[clean create start status stop].member?(name)
     end
 
     def user_home
       raise "No HOME env var is set" if ! ENV["HOME"]
       ENV["HOME"]
     end
+
+    FILE_BASENAME = -".nuttall"
 
     def user_file
       @user_file ||= begin
@@ -61,6 +61,48 @@ module Nuttall
       File.write(user_file, user_file_settings.deep_to_h.to_yaml)
     end
 
+    DISK_SIZE_REGEX = /\A([\d,_]+(\.[\d,_]+)?)\s*(([kmgtp])(ib|b?)?|%)?\z/.freeze
+
+    def parse_disk_size(value, dir, percent: true)
+      rem = DISK_SIZE_REGEX.match(value.to_s.strip.downcase)
+      return nil if ! rem
+
+      num = rem[1].gsub(/[^\d.]+/, "").to_f
+      return num.round if ! rem[3]
+
+      if rem[3] == "%"
+        return nil if ! percent
+        num /= 100.0
+        mult = fs_info(dir)[:fs_size]
+      else
+        base = (rem[5] == "ib") ? 1024 : 1000
+        pow  = "kmgtp".index(rem[4]) + 1
+        mult = base**pow
+      end
+
+      (num * mult).round
+    end
+
+    DURATION_REGEX = -> do
+      periods = "s(ec(onds?)?)?|mi(n(utes?)?)?|h(r|ours?)?|d(ays?)?|w(k|eeks?)?|mo(n(ths?)?)?|y(r|ears?)?"
+      /\A([\d,_]+(\.[\d,_]+)?)\s*(#{periods})?\z/
+    end.call.freeze
+
+    def parse_duration(value)
+      rem = DURATION_REGEX.match(value.to_s.strip.downcase)
+      return nil if ! rem
+
+      num = rem[1].gsub(/[^\d.]+/, "").to_f
+      per = rem[3]
+      return num.round if ! per
+
+      # Month is 30.5 days; year is 365.25 days
+      mults = { "s" => 1, "mi" => 60, "h" => 3600, "d" => 86400, "w" => 604800, "mo" => 2635200, "y" => 31557600 }
+      mult = mults.detect { |k, v| per.start_with?(k) }[1]
+
+      (num * mult).round
+    end
+
     def user_file_defaults
       {
         container: {
@@ -69,9 +111,9 @@ module Nuttall
         },
         disk: {
           size: {
-            start:     "1GB",
+            start:     "1 GB",
             max:       "50%",
-            increment: "1GB"
+            increment: "1 GB"
           },
           encrypt: {
             enable:    true
@@ -79,8 +121,8 @@ module Nuttall
         },
         policy: {
           retain: {
-            index:   "1mo",
-            exports: "6mo"
+            index:   "1 mo",
+            exports: "6 mo"
           },
           discard: {
             index:   false,
