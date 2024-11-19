@@ -14,7 +14,8 @@ module Common
       # The hash will have keys such as:
       #     :path => The absolute path given.
       #     :device => The path's device in major:minor format.
-      #     :fs_free => Free bytes on the path's filesystem.
+      #     :fs_free => Free bytes in the path's filesystem.
+      #     :fs_size => Total bytes in the path's filesystem.
       #
     def fs_info(path)
       path = File.expand_path(path)
