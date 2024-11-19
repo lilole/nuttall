@@ -11,14 +11,7 @@ if my_subdir == "nuttall/exe" && File.directory?(my_dotgit)
   Dir.chdir("#{__dir__}/..") do
     require "bundler/setup"
   end
-end
-
-require "zeitwerk"
-
-Zeitwerk::Loader.new.tap do |loader|
-  project_dir = File.expand_path("..", __dir__)
-  loader.push_dir("#{project_dir}/lib")
-  loader.setup
+  load File.expand_path("../lib/autoloader.rb", __dir__)
 end
 
 exit(Nuttall::Cli.new(ARGV).run)
