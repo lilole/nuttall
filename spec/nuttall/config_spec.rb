@@ -595,4 +595,409 @@ RSpec.describe Nuttall::Config do
       end
     end
   end # #parse_disk_size
+
+  describe "#parse_duration" do
+    let(:test) do
+      ->(value) { subject.parse_duration(value) }
+    end
+
+    context "for happy path" do
+      context "with numeric" do
+        it("does 10")     { expect(test["10"]).to           eq(10) }
+        it("does 20")     { expect(test[" 20"]).to          eq(20) }
+        it("does 30")     { expect(test["30 "]).to          eq(30) }
+        it("does 40")     { expect(test[" 40 "]).to         eq(40) }
+        it("does 50")     { expect(test["\n 50 \n"]).to     eq(50) }
+        it("does 10.0")   { expect(test["10.0"]).to         eq(10) }
+        it("does 20.234") { expect(test[" 20.234"]).to      eq(20) }
+        it("does 30.345") { expect(test["30.345 "]).to      eq(30) }
+        it("does 40.456") { expect(test[" 40.456 "]).to     eq(40) }
+        it("does 50.567") { expect(test["\n 50.567 \n"]).to eq(51) }
+      end
+
+      context "with seconds" do
+        it("does 1s")           { expect(test["1s"]).to                   eq(1) }
+        it("does 2s")           { expect(test[" 2s"]).to                  eq(2) }
+        it("does 3s")           { expect(test["3s "]).to                  eq(3) }
+        it("does 4s")           { expect(test[" 4 s "]).to                eq(4) }
+        it("does 5s")           { expect(test["\n 5  s \n"]).to           eq(5) }
+        it("does 1sec")         { expect(test["1sec"]).to                 eq(1) }
+        it("does 2sec")         { expect(test[" 2sec"]).to                eq(2) }
+        it("does 3sec")         { expect(test["3sec "]).to                eq(3) }
+        it("does 4sec")         { expect(test[" 4 sec "]).to              eq(4) }
+        it("does 5sec")         { expect(test["\n 5  sec \n"]).to         eq(5) }
+        it("does 1second")      { expect(test["1second"]).to              eq(1) }
+        it("does 2second")      { expect(test[" 2second"]).to             eq(2) }
+        it("does 3second")      { expect(test["3second "]).to             eq(3) }
+        it("does 4second")      { expect(test[" 4 second "]).to           eq(4) }
+        it("does 5second")      { expect(test["\n 5  second \n"]).to      eq(5) }
+        it("does 1seconds")     { expect(test["1seconds"]).to             eq(1) }
+        it("does 2seconds")     { expect(test[" 2seconds"]).to            eq(2) }
+        it("does 3seconds")     { expect(test["3seconds "]).to            eq(3) }
+        it("does 4seconds")     { expect(test[" 4 seconds "]).to          eq(4) }
+        it("does 5seconds")     { expect(test["\n 5  seconds \n"]).to     eq(5) }
+        it("does 1.0s")         { expect(test["1.0s"]).to                 eq(1) }
+        it("does 2.234s")       { expect(test[" 2.234s"]).to              eq(2) }
+        it("does 3.345s")       { expect(test["3.345s "]).to              eq(3) }
+        it("does 4.456s")       { expect(test[" 4.456 s "]).to            eq(4) }
+        it("does 5.567s")       { expect(test["\n 5.567  s \n"]).to       eq(6) }
+        it("does 1.0sec")       { expect(test["1.0sec"]).to               eq(1) }
+        it("does 2.234sec")     { expect(test[" 2.234sec"]).to            eq(2) }
+        it("does 3.345sec")     { expect(test["3.345sec "]).to            eq(3) }
+        it("does 4.456sec")     { expect(test[" 4.456 sec "]).to          eq(4) }
+        it("does 5.567sec")     { expect(test["\n 5.567  sec \n"]).to     eq(6) }
+        it("does 1.0second")    { expect(test["1.0second"]).to            eq(1) }
+        it("does 2.234second")  { expect(test[" 2.234second"]).to         eq(2) }
+        it("does 3.345second")  { expect(test["3.345second "]).to         eq(3) }
+        it("does 4.456second")  { expect(test[" 4.456 second "]).to       eq(4) }
+        it("does 5.567second")  { expect(test["\n 5.567  second \n"]).to  eq(6) }
+        it("does 1.0seconds")   { expect(test["1.0seconds"]).to           eq(1) }
+        it("does 2.234seconds") { expect(test[" 2.234seconds"]).to        eq(2) }
+        it("does 3.345seconds") { expect(test["3.345seconds "]).to        eq(3) }
+        it("does 4.456seconds") { expect(test[" 4.456 seconds "]).to      eq(4) }
+        it("does 5.567seconds") { expect(test["\n 5.567  seconds \n"]).to eq(6) }
+      end
+
+      context "with minutes" do
+        it("does 1mi")          { expect(test["1mi"]).to                  eq(60) }
+        it("does 2mi")          { expect(test[" 2mi"]).to                 eq(120) }
+        it("does 3mi")          { expect(test["3mi "]).to                 eq(180) }
+        it("does 4mi")          { expect(test[" 4 mi "]).to               eq(240) }
+        it("does 5mi")          { expect(test["\n 5  mi \n"]).to          eq(300) }
+        it("does 1min")         { expect(test["1min"]).to                 eq(60) }
+        it("does 2min")         { expect(test[" 2min"]).to                eq(120) }
+        it("does 3min")         { expect(test["3min "]).to                eq(180) }
+        it("does 4min")         { expect(test[" 4 min "]).to              eq(240) }
+        it("does 5min")         { expect(test["\n 5  min \n"]).to         eq(300) }
+        it("does 1minute")      { expect(test["1minute"]).to              eq(60) }
+        it("does 2minute")      { expect(test[" 2minute"]).to             eq(120) }
+        it("does 3minute")      { expect(test["3minute "]).to             eq(180) }
+        it("does 4minute")      { expect(test[" 4 minute "]).to           eq(240) }
+        it("does 5minute")      { expect(test["\n 5  minute \n"]).to      eq(300) }
+        it("does 1minutes")     { expect(test["1minutes"]).to             eq(60) }
+        it("does 2minutes")     { expect(test[" 2minutes"]).to            eq(120) }
+        it("does 3minutes")     { expect(test["3minutes "]).to            eq(180) }
+        it("does 4minutes")     { expect(test[" 4 minutes "]).to          eq(240) }
+        it("does 5minutes")     { expect(test["\n 5  minutes \n"]).to     eq(300) }
+        it("does 1.0mi")        { expect(test["1.0mi"]).to                eq(60) }
+        it("does 2.234mi")      { expect(test[" 2.234mi"]).to             eq(134) }
+        it("does 3.345mi")      { expect(test["3.345mi "]).to             eq(201) }
+        it("does 4.456mi")      { expect(test[" 4.456 mi "]).to           eq(267) }
+        it("does 5.567mi")      { expect(test["\n 5.567  mi \n"]).to      eq(334) }
+        it("does 1.0min")       { expect(test["1.0min"]).to               eq(60) }
+        it("does 2.234min")     { expect(test[" 2.234min"]).to            eq(134) }
+        it("does 3.345min")     { expect(test["3.345min "]).to            eq(201) }
+        it("does 4.456min")     { expect(test[" 4.456 min "]).to          eq(267) }
+        it("does 5.567min")     { expect(test["\n 5.567  min \n"]).to     eq(334) }
+        it("does 1.0minute")    { expect(test["1.0minute"]).to            eq(60) }
+        it("does 2.234minute")  { expect(test[" 2.234minute"]).to         eq(134) }
+        it("does 3.345minute")  { expect(test["3.345minute "]).to         eq(201) }
+        it("does 4.456minute")  { expect(test[" 4.456 minute "]).to       eq(267) }
+        it("does 5.567minute")  { expect(test["\n 5.567  minute \n"]).to  eq(334) }
+        it("does 1.0minutes")   { expect(test["1.0minutes"]).to           eq(60) }
+        it("does 2.234minutes") { expect(test[" 2.234minutes"]).to        eq(134) }
+        it("does 3.345minutes") { expect(test["3.345minutes "]).to        eq(201) }
+        it("does 4.456minutes") { expect(test[" 4.456 minutes "]).to      eq(267) }
+        it("does 5.567minutes") { expect(test["\n 5.567  minutes \n"]).to eq(334) }
+      end
+
+      context "with hours" do
+        it("does 1h")         { expect(test["1h"]).to                 eq(3600) }
+        it("does 2h")         { expect(test[" 2h"]).to                eq(7200) }
+        it("does 3h")         { expect(test["3h "]).to                eq(10800) }
+        it("does 4h")         { expect(test[" 4 h "]).to              eq(14400) }
+        it("does 5h")         { expect(test["\n 5  h \n"]).to         eq(18000) }
+        it("does 1hr")        { expect(test["1hr"]).to                eq(3600) }
+        it("does 2hr")        { expect(test[" 2hr"]).to               eq(7200) }
+        it("does 3hr")        { expect(test["3hr "]).to               eq(10800) }
+        it("does 4hr")        { expect(test[" 4 hr "]).to             eq(14400) }
+        it("does 5hr")        { expect(test["\n 5  hr \n"]).to        eq(18000) }
+        it("does 1hour")      { expect(test["1hour"]).to              eq(3600) }
+        it("does 2hour")      { expect(test[" 2hour"]).to             eq(7200) }
+        it("does 3hour")      { expect(test["3hour "]).to             eq(10800) }
+        it("does 4hour")      { expect(test[" 4 hour "]).to           eq(14400) }
+        it("does 5hour")      { expect(test["\n 5  hour \n"]).to      eq(18000) }
+        it("does 1hours")     { expect(test["1hours"]).to             eq(3600) }
+        it("does 2hours")     { expect(test[" 2hours"]).to            eq(7200) }
+        it("does 3hours")     { expect(test["3hours "]).to            eq(10800) }
+        it("does 4hours")     { expect(test[" 4 hours "]).to          eq(14400) }
+        it("does 5hours")     { expect(test["\n 5  hours \n"]).to     eq(18000) }
+        it("does 1.0h")       { expect(test["1.0h"]).to               eq(3600) }
+        it("does 2.234h")     { expect(test[" 2.234h"]).to            eq(8042) }
+        it("does 3.345h")     { expect(test["3.345h "]).to            eq(12042) }
+        it("does 4.456h")     { expect(test[" 4.456 h "]).to          eq(16042) }
+        it("does 5.567h")     { expect(test["\n 5.567  h \n"]).to     eq(20041) }
+        it("does 1.0hr")      { expect(test["1.0hr"]).to              eq(3600) }
+        it("does 2.234hr")    { expect(test[" 2.234hr"]).to           eq(8042) }
+        it("does 3.345hr")    { expect(test["3.345hr "]).to           eq(12042) }
+        it("does 4.456hr")    { expect(test[" 4.456 hr "]).to         eq(16042) }
+        it("does 5.567hr")    { expect(test["\n 5.567  hr \n"]).to    eq(20041) }
+        it("does 1.0hour")    { expect(test["1.0hour"]).to            eq(3600) }
+        it("does 2.234hour")  { expect(test[" 2.234hour"]).to         eq(8042) }
+        it("does 3.345hour")  { expect(test["3.345hour "]).to         eq(12042) }
+        it("does 4.456hour")  { expect(test[" 4.456 hour "]).to       eq(16042) }
+        it("does 5.567hour")  { expect(test["\n 5.567  hour \n"]).to  eq(20041) }
+        it("does 1.0hours")   { expect(test["1.0hours"]).to           eq(3600) }
+        it("does 2.234hours") { expect(test[" 2.234hours"]).to        eq(8042) }
+        it("does 3.345hours") { expect(test["3.345hours "]).to        eq(12042) }
+        it("does 4.456hours") { expect(test[" 4.456 hours "]).to      eq(16042) }
+        it("does 5.567hours") { expect(test["\n 5.567  hours \n"]).to eq(20041) }
+      end
+
+      context "with days" do
+        it("does 1d")        { expect(test["1d"]).to                eq(86400) }
+        it("does 2d")        { expect(test[" 2d"]).to               eq(172800) }
+        it("does 3d")        { expect(test["3d "]).to               eq(259200) }
+        it("does 4d")        { expect(test[" 4 d "]).to             eq(345600) }
+        it("does 5d")        { expect(test["\n 5  d \n"]).to        eq(432000) }
+        it("does 1day")      { expect(test["1day"]).to              eq(86400) }
+        it("does 2day")      { expect(test[" 2day"]).to             eq(172800) }
+        it("does 3day")      { expect(test["3day "]).to             eq(259200) }
+        it("does 4day")      { expect(test[" 4 day "]).to           eq(345600) }
+        it("does 5day")      { expect(test["\n 5  day \n"]).to      eq(432000) }
+        it("does 1days")     { expect(test["1days"]).to             eq(86400) }
+        it("does 2days")     { expect(test[" 2days"]).to            eq(172800) }
+        it("does 3days")     { expect(test["3days "]).to            eq(259200) }
+        it("does 4days")     { expect(test[" 4 days "]).to          eq(345600) }
+        it("does 5days")     { expect(test["\n 5  days \n"]).to     eq(432000) }
+        it("does 1.0d")      { expect(test["1.0d"]).to              eq(86400) }
+        it("does 2.234d")    { expect(test[" 2.234d"]).to           eq(193018) }
+        it("does 3.345d")    { expect(test["3.345d "]).to           eq(289008) }
+        it("does 4.456d")    { expect(test[" 4.456 d "]).to         eq(384998) }
+        it("does 5.567d")    { expect(test["\n 5.567  d \n"]).to    eq(480989) }
+        it("does 1.0day")    { expect(test["1.0day"]).to            eq(86400) }
+        it("does 2.234day")  { expect(test[" 2.234day"]).to         eq(193018) }
+        it("does 3.345day")  { expect(test["3.345day "]).to         eq(289008) }
+        it("does 4.456day")  { expect(test[" 4.456 day "]).to       eq(384998) }
+        it("does 5.567day")  { expect(test["\n 5.567  day \n"]).to  eq(480989) }
+        it("does 1.0days")   { expect(test["1.0days"]).to           eq(86400) }
+        it("does 2.234days") { expect(test[" 2.234days"]).to        eq(193018) }
+        it("does 3.345days") { expect(test["3.345days "]).to        eq(289008) }
+        it("does 4.456days") { expect(test[" 4.456 days "]).to      eq(384998) }
+        it("does 5.567days") { expect(test["\n 5.567  days \n"]).to eq(480989) }
+      end
+
+      context "with weeks" do
+        it("does 1w")         { expect(test["1w"]).to                 eq(604800) }
+        it("does 2w")         { expect(test[" 2w"]).to                eq(1209600) }
+        it("does 3w")         { expect(test["3w "]).to                eq(1814400) }
+        it("does 4w")         { expect(test[" 4 w "]).to              eq(2419200) }
+        it("does 5w")         { expect(test["\n 5  w \n"]).to         eq(3024000) }
+        it("does 1wk")        { expect(test["1wk"]).to                eq(604800) }
+        it("does 2wk")        { expect(test[" 2wk"]).to               eq(1209600) }
+        it("does 3wk")        { expect(test["3wk "]).to               eq(1814400) }
+        it("does 4wk")        { expect(test[" 4 wk "]).to             eq(2419200) }
+        it("does 5wk")        { expect(test["\n 5  wk \n"]).to        eq(3024000) }
+        it("does 1week")      { expect(test["1week"]).to              eq(604800) }
+        it("does 2week")      { expect(test[" 2week"]).to             eq(1209600) }
+        it("does 3week")      { expect(test["3week "]).to             eq(1814400) }
+        it("does 4week")      { expect(test[" 4 week "]).to           eq(2419200) }
+        it("does 5week")      { expect(test["\n 5  week \n"]).to      eq(3024000) }
+        it("does 1weeks")     { expect(test["1weeks"]).to             eq(604800) }
+        it("does 2weeks")     { expect(test[" 2weeks"]).to            eq(1209600) }
+        it("does 3weeks")     { expect(test["3weeks "]).to            eq(1814400) }
+        it("does 4weeks")     { expect(test[" 4 weeks "]).to          eq(2419200) }
+        it("does 5weeks")     { expect(test["\n 5  weeks \n"]).to     eq(3024000) }
+        it("does 1.0w")       { expect(test["1.0w"]).to               eq(604800) }
+        it("does 2.234w")     { expect(test[" 2.234w"]).to            eq(1351123) }
+        it("does 3.345w")     { expect(test["3.345w "]).to            eq(2023056) }
+        it("does 4.456w")     { expect(test[" 4.456 w "]).to          eq(2694989) }
+        it("does 5.567w")     { expect(test["\n 5.567  w \n"]).to     eq(3366922) }
+        it("does 1.0wk")      { expect(test["1.0wk"]).to              eq(604800) }
+        it("does 2.234wk")    { expect(test[" 2.234wk"]).to           eq(1351123) }
+        it("does 3.345wk")    { expect(test["3.345wk "]).to           eq(2023056) }
+        it("does 4.456wk")    { expect(test[" 4.456 wk "]).to         eq(2694989) }
+        it("does 5.567wk")    { expect(test["\n 5.567  wk \n"]).to    eq(3366922) }
+        it("does 1.0week")    { expect(test["1.0week"]).to            eq(604800) }
+        it("does 2.234week")  { expect(test[" 2.234week"]).to         eq(1351123) }
+        it("does 3.345week")  { expect(test["3.345week "]).to         eq(2023056) }
+        it("does 4.456week")  { expect(test[" 4.456 week "]).to       eq(2694989) }
+        it("does 5.567week")  { expect(test["\n 5.567  week \n"]).to  eq(3366922) }
+        it("does 1.0weeks")   { expect(test["1.0weeks"]).to           eq(604800) }
+        it("does 2.234weeks") { expect(test[" 2.234weeks"]).to        eq(1351123) }
+        it("does 3.345weeks") { expect(test["3.345weeks "]).to        eq(2023056) }
+        it("does 4.456weeks") { expect(test[" 4.456 weeks "]).to      eq(2694989) }
+        it("does 5.567weeks") { expect(test["\n 5.567  weeks \n"]).to eq(3366922) }
+      end
+
+      context "with months" do
+        it("does 1mo")         { expect(test["1mo"]).to                 eq(2635200) }
+        it("does 2mo")         { expect(test[" 2mo"]).to                eq(5270400) }
+        it("does 3mo")         { expect(test["3mo "]).to                eq(7905600) }
+        it("does 4mo")         { expect(test[" 4 mo "]).to              eq(10540800) }
+        it("does 5mo")         { expect(test["\n 5  mo \n"]).to         eq(13176000) }
+        it("does 1mon")        { expect(test["1mon"]).to                eq(2635200) }
+        it("does 2mon")        { expect(test[" 2mon"]).to               eq(5270400) }
+        it("does 3mon")        { expect(test["3mon "]).to               eq(7905600) }
+        it("does 4mon")        { expect(test[" 4 mon "]).to             eq(10540800) }
+        it("does 5mon")        { expect(test["\n 5  mon \n"]).to        eq(13176000) }
+        it("does 1month")      { expect(test["1month"]).to              eq(2635200) }
+        it("does 2month")      { expect(test[" 2month"]).to             eq(5270400) }
+        it("does 3month")      { expect(test["3month "]).to             eq(7905600) }
+        it("does 4month")      { expect(test[" 4 month "]).to           eq(10540800) }
+        it("does 5month")      { expect(test["\n 5  month \n"]).to      eq(13176000) }
+        it("does 1months")     { expect(test["1months"]).to             eq(2635200) }
+        it("does 2months")     { expect(test[" 2months"]).to            eq(5270400) }
+        it("does 3months")     { expect(test["3months "]).to            eq(7905600) }
+        it("does 4months")     { expect(test[" 4 months "]).to          eq(10540800) }
+        it("does 5months")     { expect(test["\n 5  months \n"]).to     eq(13176000) }
+        it("does 1.0mo")       { expect(test["1.0mo"]).to               eq(2635200) }
+        it("does 2.234mo")     { expect(test[" 2.234mo"]).to            eq(5887037) }
+        it("does 3.345mo")     { expect(test["3.345mo "]).to            eq(8814744) }
+        it("does 4.456mo")     { expect(test[" 4.456 mo "]).to          eq(11742451) }
+        it("does 5.567mo")     { expect(test["\n 5.567  mo \n"]).to     eq(14670158) }
+        it("does 1.0mon")      { expect(test["1.0mon"]).to              eq(2635200) }
+        it("does 2.234mon")    { expect(test[" 2.234mon"]).to           eq(5887037) }
+        it("does 3.345mon")    { expect(test["3.345mon "]).to           eq(8814744) }
+        it("does 4.456mon")    { expect(test[" 4.456 mon "]).to         eq(11742451) }
+        it("does 5.567mon")    { expect(test["\n 5.567  mon \n"]).to    eq(14670158) }
+        it("does 1.0month")    { expect(test["1.0month"]).to            eq(2635200) }
+        it("does 2.234month")  { expect(test[" 2.234month"]).to         eq(5887037) }
+        it("does 3.345month")  { expect(test["3.345month "]).to         eq(8814744) }
+        it("does 4.456month")  { expect(test[" 4.456 month "]).to       eq(11742451) }
+        it("does 5.567month")  { expect(test["\n 5.567  month \n"]).to  eq(14670158) }
+        it("does 1.0months")   { expect(test["1.0months"]).to           eq(2635200) }
+        it("does 2.234months") { expect(test[" 2.234months"]).to        eq(5887037) }
+        it("does 3.345months") { expect(test["3.345months "]).to        eq(8814744) }
+        it("does 4.456months") { expect(test[" 4.456 months "]).to      eq(11742451) }
+        it("does 5.567months") { expect(test["\n 5.567  months \n"]).to eq(14670158) }
+      end
+
+      context "with years" do
+        it("does 1y")         { expect(test["1y"]).to                 eq(31557600) }
+        it("does 2y")         { expect(test[" 2y"]).to                eq(63115200) }
+        it("does 3y")         { expect(test["3y "]).to                eq(94672800) }
+        it("does 4y")         { expect(test[" 4 y "]).to              eq(126230400) }
+        it("does 5y")         { expect(test["\n 5  y \n"]).to         eq(157788000) }
+        it("does 1yr")        { expect(test["1yr"]).to                eq(31557600) }
+        it("does 2yr")        { expect(test[" 2yr"]).to               eq(63115200) }
+        it("does 3yr")        { expect(test["3yr "]).to               eq(94672800) }
+        it("does 4yr")        { expect(test[" 4 yr "]).to             eq(126230400) }
+        it("does 5yr")        { expect(test["\n 5  yr \n"]).to        eq(157788000) }
+        it("does 1year")      { expect(test["1year"]).to              eq(31557600) }
+        it("does 2year")      { expect(test[" 2year"]).to             eq(63115200) }
+        it("does 3year")      { expect(test["3year "]).to             eq(94672800) }
+        it("does 4year")      { expect(test[" 4 year "]).to           eq(126230400) }
+        it("does 5year")      { expect(test["\n 5  year \n"]).to      eq(157788000) }
+        it("does 1years")     { expect(test["1years"]).to             eq(31557600) }
+        it("does 2years")     { expect(test[" 2years"]).to            eq(63115200) }
+        it("does 3years")     { expect(test["3years "]).to            eq(94672800) }
+        it("does 4years")     { expect(test[" 4 years "]).to          eq(126230400) }
+        it("does 5years")     { expect(test["\n 5  years \n"]).to     eq(157788000) }
+        it("does 1.0y")       { expect(test["1.0y"]).to               eq(31557600) }
+        it("does 2.234y")     { expect(test[" 2.234y"]).to            eq(70499678) }
+        it("does 3.345y")     { expect(test["3.345y "]).to            eq(105560172) }
+        it("does 4.456y")     { expect(test[" 4.456 y "]).to          eq(140620666) }
+        it("does 5.567y")     { expect(test["\n 5.567  y \n"]).to     eq(175681159) }
+        it("does 1.0yr")      { expect(test["1.0yr"]).to              eq(31557600) }
+        it("does 2.234yr")    { expect(test[" 2.234yr"]).to           eq(70499678) }
+        it("does 3.345yr")    { expect(test["3.345yr "]).to           eq(105560172) }
+        it("does 4.456yr")    { expect(test[" 4.456 yr "]).to         eq(140620666) }
+        it("does 5.567yr")    { expect(test["\n 5.567  yr \n"]).to    eq(175681159) }
+        it("does 1.0year")    { expect(test["1.0year"]).to            eq(31557600) }
+        it("does 2.234year")  { expect(test[" 2.234year"]).to         eq(70499678) }
+        it("does 3.345year")  { expect(test["3.345year "]).to         eq(105560172) }
+        it("does 4.456year")  { expect(test[" 4.456 year "]).to       eq(140620666) }
+        it("does 5.567year")  { expect(test["\n 5.567  year \n"]).to  eq(175681159) }
+        it("does 1.0years")   { expect(test["1.0years"]).to           eq(31557600) }
+        it("does 2.234years") { expect(test[" 2.234years"]).to        eq(70499678) }
+        it("does 3.345years") { expect(test["3.345years "]).to        eq(105560172) }
+        it("does 4.456years") { expect(test[" 4.456 years "]).to      eq(140620666) }
+        it("does 5.567years") { expect(test["\n 5.567  years \n"]).to eq(175681159) }
+      end
+    end # for happy path
+
+    context "for fail path" do
+      it("does 1z")    { expect(test["1z"]).to    be_nil }
+      it("does 1 z")   { expect(test["1 z"]).to   be_nil }
+      it("does 1z s")  { expect(test["1z s"]).to  be_nil }
+      it("does 1z mi") { expect(test["1z mi"]).to be_nil }
+      it("does 1z h")  { expect(test["1z h"]).to  be_nil }
+      it("does 1z d")  { expect(test["1z d"]).to  be_nil }
+      it("does 1z w")  { expect(test["1z w"]).to  be_nil }
+      it("does 1z mo") { expect(test["1z mo"]).to be_nil }
+      it("does 1z y")  { expect(test["1z y"]).to  be_nil }
+      it("does z1")    { expect(test["z1"]).to    be_nil }
+      it("does z 1")   { expect(test["z 1"]).to   be_nil }
+      it("does z1 s")  { expect(test["z1 s"]).to  be_nil }
+      it("does z1 mi") { expect(test["z1 mi"]).to be_nil }
+      it("does z1 h")  { expect(test["z1 h"]).to  be_nil }
+      it("does z1 d")  { expect(test["z1 d"]).to  be_nil }
+      it("does z1 w")  { expect(test["z1 w"]).to  be_nil }
+      it("does z1 mo") { expect(test["z1 mo"]).to be_nil }
+      it("does z1 y")  { expect(test["z1 y"]).to  be_nil }
+    end # for fail path
+  end # #parse_duration
+
+  describe "#user_file_defaults" do
+    it "is a Struct" do
+      expect(subject).to receive(:default_name).once.and_return("fake_name")
+      expect(subject).to receive(:default_workdir).once.and_return("fake_dir")
+
+      expect(Struct === subject.user_file_defaults).to be(true)
+    end
+  end
+
+  describe "#default_name" do
+    before do
+      subject.instance_eval { @default_name = nil }
+    end
+
+    it "calls host_hash" do
+      expect(subject).to receive(:host_hash).once.and_return("fake_hash")
+
+      expect(subject.default_name).to match(/fake_hash/)
+    end
+
+    it "caches its value" do
+      expect(subject).to receive(:host_hash).once.and_return("fake_hash")
+
+      expect(subject.instance_eval { @default_name }).to be(nil)
+      expect(subject.default_name).to match(/fake_hash/)
+      expect(subject.instance_eval { @default_name }).to match(/fake_hash/)
+      expect(subject.default_name).to match(/fake_hash/)
+    end
+  end
+
+  describe "#default_workdir" do
+    def standard_call(&calc_free)
+      tried = []
+
+      expect(subject).to receive(:fs_info).exactly(try_dirs.size).times do |dir|
+        tried << dir
+        { path: dir, fs_free: calc_free[tried] }
+      end
+
+      { dir: subject.default_workdir, tried: tried }
+    end
+
+    let(:try_dirs) { %w[/opt /var/local /var/opt /usr/local /usr/share] } # Match method
+
+    before do
+      subject.instance_eval { @default_workdir = nil }
+    end
+
+    it "uses standard dirs" do
+      result = standard_call { |_| 100 }
+      expect(result[:tried].size).to eq(try_dirs.size)
+      expect(try_dirs - result[:tried]).to be_empty
+    end
+
+    it "sorts by free space" do
+      result = standard_call { |tried_dirs| tried_dirs.size * 100 }
+      expect(result[:dir]).to eq(try_dirs.last)
+    end
+
+    it "sorts by free space then path" do
+      free_index = {}
+      result = standard_call do |tried_dirs|
+        index = tried_dirs.size - 1
+        free = [1, 2].member?(index) ? 200 : 100
+        free_index[tried_dirs.last] = free
+      end
+      expect(free_index.values.uniq.sort).to eq([100, 200])
+      expect(free_index.values[1, 2]).to eq([200, 200])
+      expect(result[:dir]).to eq(free_index.keys[1])
+    end
+  end
 end
