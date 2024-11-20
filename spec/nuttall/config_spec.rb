@@ -999,5 +999,14 @@ RSpec.describe Nuttall::Config do
       expect(free_index.values[1, 2]).to eq([200, 200])
       expect(result[:dir]).to eq(free_index.keys[1])
     end
+
+    it "caches" do
+      expect(subject.instance_eval { @default_workdir  }).to be(nil)
+
+      result = standard_call { |_| 100 }
+      expect(subject.instance_eval { @default_workdir  }).to eq(result[:dir])
+
+      expect(subject.default_workdir).to eq(result[:dir])
+    end
   end
 end
