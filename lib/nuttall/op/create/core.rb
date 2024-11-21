@@ -3,6 +3,8 @@
 # Copyright 2024 Dan Higgins
 # SPDX-License-Identifier: Apache-2.0
 
+require 'fileutils'
+
 module Nuttall
 module Op
 module Create
@@ -22,10 +24,13 @@ module Create
     def run
       begin
         get_settings
-        save_settings
       rescue SettingsAborted
-        nil
+        return
       end
+      save_defaults_file
+      prep_workdir
+      save_settings
+      Nuttall::Container::Builder.new(config).run
     end
 
     def get_settings
@@ -49,8 +54,28 @@ module Create
       end
     end
 
+    def save_defaults_file
+      saved = [settings.container.workdir, settings.container.name]
+      settings.container.workdir = settings.container.name = nil
+
+      defaults = config.defaults_file
+      if ! File.exist?(defaults) || File.read(defaults) != config.user_file_text
+        config.save_user_file(defaults)
+        puts "\nSaved default values to #{defaults.inspect}."
+      end
+
+      settings.container.workdir, settings.container.name = saved
+    end
+
+    def prep_workdir
+      FileUtils.mkdir_p(container_dir, mode: 0700)
+    end
+
+    def container_dir = File.join(settings.container.workdir, config.file_basename, settings.container.name)
+
     def save_settings
-      config.user_file = File.join(File.dirname(config.user_file), settings.container.name)
+      enforce_parsed_settings
+      config.user_file = File.join(container_dir, "settings.yml")
       config.save_user_file
       puts(<<~END)
 
@@ -58,6 +83,16 @@ module Create
 
         Use the "config" subcommand to update settings later if needed.
       END
+    end
+
+    def enforce_parsed_settings
+      [settings.disk, settings.policy, settings.container].then do |d, p, c|
+        d.size.start     = config.parse_disk_size(d.size.start,     c.workdir)
+        d.size.max       = config.parse_disk_size(d.size.max,       c.workdir)
+        d.size.increment = config.parse_disk_size(d.size.increment, c.workdir)
+        p.retain.index   = config.parse_duration(p.retain.index)
+        p.retain.exports = config.parse_duration(p.retain.exports)
+      end
     end
 
     def writable_head(dir)
@@ -75,6 +110,7 @@ module Create
           step.index = 0
 
           step.work = -> do
+            settings.container.workdir ||= config.default_workdir
             ask("\nWork area base dir", settings, %i[container workdir], notes: <<~END)
               - This must be on a filesystem with all necessary disk space.
               - The default value is a preferred path chosen on the filesystem of
@@ -107,6 +143,7 @@ module Create
           step.index = 1
 
           step.work = -> do
+            settings.container.name ||= config.default_name
             ask("\nContainer name", settings, %i[container name], notes: <<~END)
               - This must be unique within the current host.
               - If you're setting up a local network of Nuttalls, then this must be
@@ -132,7 +169,7 @@ module Create
           step.work = -> do
             ask("\nStarting disk size", settings, %i[disk size start], notes: <<~END)
               - This is the initial size of the virtual disk of the Nuttall container.
-              - Standard suffixes like "M", "MB", "MiB", etc are supported.
+              - Standard suffixes like "K" & "KiB" for 1024s or "KB" for 1000s are supported.
               - A suffix of "%" means percent of the work dir's total filesystem.
             END
           end
@@ -149,6 +186,7 @@ module Create
               puts "\nInvalid size: Cannot be more than free bytes: #{total}"
               return false
             end
+            puts "\nStart size will be #{size.commafy} bytes."
             true
           end
         end
@@ -160,7 +198,7 @@ module Create
             ask("\nMax disk size", settings, %i[disk size max], notes: <<~END)
               - This is the max size of the virtual disk of the Nuttall container.
               - If the virtual disk size grows to this amount, it may start to fill up.
-              - Standard suffixes like "M", "MB", "MiB", etc are supported.
+              - Standard suffixes like "K" & "KiB" for 1024s or "KB" for 1000s are supported.
               - A suffix of "%" means percent of the work dir's total filesystem.
             END
           end
@@ -177,6 +215,7 @@ module Create
               puts "\nInvalid size: Cannot be more than free bytes: #{total}"
               return false
             end
+            puts "\nMax size will be #{size.commafy} bytes."
             true
           end
         end
@@ -188,7 +227,7 @@ module Create
             ask("\nDisk size increment", settings, %i[disk size increment], notes: <<~END)
               - As the virtual disk fills and grows from its starting size to its max
                 size, this is the amount of each growth step.
-              - Standard suffixes like "M", "MB", "MiB", etc are supported.
+              - Standard suffixes like "K" & "KiB" for 1024s or "KB" for 1000s are supported.
               - The "%" suffix is not supported here.
             END
           end
@@ -206,6 +245,7 @@ module Create
               puts "\nInvalid size: Cannot be more than free bytes minus start size: #{total}"
               return false
             end
+            puts "\nSize will increase by #{size.commafy} bytes."
             true
           end
         end
