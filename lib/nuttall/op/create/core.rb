@@ -9,8 +9,8 @@ module Nuttall
 module Op
 module Create
   class Core
-    include Nuttall::Common::Asker
-    include Nuttall::Common::FsInfo
+    include Nuttall::Mixin::Asker
+    include Nuttall::Mixin::FsInfo
 
     class SettingsAborted < RuntimeError; end
 

@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 module Nuttall
-module Common
+module Mixin
   module Bash
     ### Run `bash` with input as a script, and return an object with useful
       # details about the completed process. This is a souped-up version of the

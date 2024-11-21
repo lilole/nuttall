@@ -6,7 +6,7 @@
 require "reline"
 
 module Nuttall
-module Common
+module Mixin
   module Asker
     class AskerClass
       attr_reader :prompt, :target_hash, :target_key, :default_last, :nil_blank, :pass_blank, :last, :notes

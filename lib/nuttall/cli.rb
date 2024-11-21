@@ -5,7 +5,7 @@
 
 module Nuttall
   class Cli
-    include Common::Argie
+    include Mixin::Argie
 
     def self.usage(message=nil, exit_code=1)
       prog = "nuttall"

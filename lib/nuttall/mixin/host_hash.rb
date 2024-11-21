@@ -8,7 +8,7 @@ require "digest/md5"
 require "socket"
 
 module Nuttall
-module Common
+module Mixin
   module HostHash
     ### Return a base64-encoded unique hash key for the current host.
       # The largest possible hash value is 22 URL-safe characters, to hold 128

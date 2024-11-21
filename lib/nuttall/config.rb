@@ -7,8 +7,8 @@ require "yaml"
 
 module Nuttall
   class Config
-    include Common::FsInfo
-    include Common::HostHash
+    include Mixin::FsInfo
+    include Mixin::HostHash
 
     def self.valid_operations = %w[clean config create start status stop]
 

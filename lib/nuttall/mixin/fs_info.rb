@@ -6,7 +6,7 @@
 require "yaml"
 
 module Nuttall
-module Common
+module Mixin
   module FsInfo
     include Bash
 
