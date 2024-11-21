@@ -20,6 +20,7 @@ module Nuttall
 
         Usage:
           #{prog} clean {exports}
+          #{prog} config {name}
           #{prog} create
           #{prog} start
           #{prog} status
@@ -27,6 +28,8 @@ module Nuttall
 
         Where:
           clean => Transfer old data out of the service's disk space and remove it.
+
+          config => Check or modify config params for a service.
 
           create => Create a new service on the current machine.
 
@@ -62,10 +65,13 @@ module Nuttall
           arg.option?(%w[h ? help]) { Cli.usage }
           Cli.usage("Invalid option: #{arg.value}") if arg.unused?
         else
-          arg.is?(%w[create start status stop]) { config.add_operation(arg.value) }
+          arg.is?(valid_ops) { config.add_operation(arg.value) }
           Cli.usage("Invalid arg: #{arg.value}") if arg.unused?
         end
       end
+      Cli.usage("At least 1 operation is required.") if config.operations.empty?
     end
+
+    def valid_ops = Config.valid_operations
   end
 end
