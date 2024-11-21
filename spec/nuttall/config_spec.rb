@@ -50,7 +50,7 @@ RSpec.describe Nuttall::Config do
     end
   end
 
-  describe "#user_file" do
+  describe "#defaults_file" do
     before do
       @saved_env = ENV["HOME"]
       subject.instance_eval { @user_file = nil }
@@ -68,10 +68,29 @@ RSpec.describe Nuttall::Config do
     it "caches and returns on writable dir" do
       ENV["HOME"] = "/fake_arse_dir"
       part1 = "#{ENV["HOME"]}/.config"
-      part2 = "#{part1}/.nuttall"
+      part2 = "#{part1}/nuttall.defaults"
       expect(File).to receive(:writable?).with(part1).once.and_return(true)
       expect(subject.user_file).to eq(part2)
       expect(subject.instance_eval { @user_file }).to eq(part2)
+    end
+  end
+
+  describe "#user_file" do
+    let(:fake_result) { "/fake_filename" }
+
+    before do
+      subject.instance_eval { @user_file = nil }
+      expect(subject).to receive(:defaults_file).once.and_return(fake_result)
+    end
+
+    it "calls #defaults_file" do
+      expect(subject.user_file).to eq(fake_result)
+    end
+
+    it "caches" do
+      expect(subject.instance_eval { @user_file }).to be_nil
+      subject.user_file
+      expect(subject.instance_eval { @user_file }).to eq(fake_result)
     end
   end
 
@@ -931,8 +950,8 @@ RSpec.describe Nuttall::Config do
 
   describe "#user_file_defaults" do
     it "is a Struct" do
-      expect(subject).to receive(:default_name).once.and_return("fake_name")
-      expect(subject).to receive(:default_workdir).once.and_return("fake_dir")
+      expect(subject).to_not receive(:default_name)
+      expect(subject).to_not receive(:default_workdir)
 
       expect(Struct === subject.user_file_defaults).to be(true)
     end
