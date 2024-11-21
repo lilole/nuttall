@@ -10,6 +10,10 @@ module Nuttall
     include Common::FsInfo
     include Common::HostHash
 
+    def self.valid_operations = %w[clean config create start status stop]
+
+    def self.valid_operation?(name) = valid_operations.member?(name)
+
     attr_reader :operations
     attr_writer :user_file
 
@@ -18,13 +22,9 @@ module Nuttall
     end
 
     def add_operation(op_name)
-      return false if ! valid_operation?(op_name)
+      return false if ! Config.valid_operation?(op_name)
       operations << op_name if ! operations.member?(op_name)
       true
-    end
-
-    def valid_operation?(name)
-      %w[clean create start status stop].member?(name)
     end
 
     def user_home
@@ -32,17 +32,22 @@ module Nuttall
       ENV["HOME"]
     end
 
-    FILE_BASENAME = -".nuttall"
-
-    def user_file
-      @user_file ||= begin
+    def defaults_file_dir
+      @defaults_file_dir ||= begin
         parents = %W[
           #{user_home}/.config #{user_home}/.local/share #{user_home}
         ]
-        found = parents.detect { |dir| File.writable?(dir) }
-        raise "Cannot find suitable parent dir for config file: Tried: #{parents}" if ! found
-        File.join(found, FILE_BASENAME)
+        parents.detect { |dir| File.writable?(dir) } or
+          raise "Cannot find suitable parent dir for defaults file: Tried: #{parents}"
       end
+    end
+
+    def file_basename = "nuttall"
+
+    def defaults_file = File.join(defaults_file_dir, "#{file_basename}.defaults")
+
+    def user_file
+      @user_file ||= defaults_file # Can be changed via attr
     end
 
     def user_file_settings(ignore_err: true)
@@ -57,8 +62,11 @@ module Nuttall
       user_file_settings(ignore_err: false)
     end
 
-    def save_user_file
-      File.write(user_file, user_file_settings.deep_to_h.to_yaml)
+    def user_file_text = user_file_settings.deep_to_h.to_yaml
+
+    def save_user_file(path=nil)
+      path ||= user_file
+      File.write(path, user_file_text)
     end
 
     DISK_SIZE_REGEX = /\A([\d,_]+(\.[\d,_]+)?)\s*(([kmgtp])(ib|b?)?|%)?\z/.freeze
@@ -75,7 +83,7 @@ module Nuttall
         num /= 100.0
         mult = fs_info(dir)[:fs_size]
       else
-        base = (rem[5] == "ib") ? 1024 : 1000
+        base = (rem[5] == "b") ? 1000 : 1024
         pow  = "kmgtp".index(rem[4]) + 1
         mult = base**pow
       end
@@ -106,14 +114,14 @@ module Nuttall
     def user_file_defaults
       {
         container: {
-          name:    default_name,
-          workdir: default_workdir
+          name:    nil,
+          workdir: nil
         },
         disk: {
           size: {
-            start:     "1 GB",
+            start:     "1 G",
             max:       "50%",
-            increment: "1 GB"
+            increment: "1 G"
           },
           encrypt: {
             enable:    true
@@ -134,12 +142,12 @@ module Nuttall
 
     def default_name = @default_name ||= "nuttall-#{host_hash}"
 
+    PREFERRED_WORKDIRS = %w[/opt /var/local /var/opt /usr/local /usr/share].freeze
+
     def default_workdir
       @default_workdir ||= begin
-        preferred = %w[/opt /var/local /var/opt /usr/local /usr/share]
-
         infos = begin
-          preferred.map.with_index do |path, idx|
+          PREFERRED_WORKDIRS.map.with_index do |path, idx|
             fs_info(path).merge(index: idx)
           end.sort do |a, b|
             (b[:fs_free] <=> a[:fs_free]) * 2 +

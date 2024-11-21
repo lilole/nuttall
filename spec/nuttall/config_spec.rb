@@ -116,18 +116,18 @@ RSpec.describe Nuttall::Config do
 
     shared_examples "working suffixes tests" do
       context "kilo" do
-        it("does 1K")          { expect(test["1K"]).to             eq(1_000) }
-        it("does 100K")        { expect(test["100 K"]).to          eq(100_000) }
-        it("does 1000K")       { expect(test[" 1000 K "]).to       eq(1_000_000) }
-        it("does 1.345K")      { expect(test["1.345K"]).to         eq(1_345) }
-        it("does 100.345K")    { expect(test["100.345 K"]).to      eq(100_345) }
-        it("does 1000.345K")   { expect(test[" 1000.345 K "]).to   eq(1_000_345) }
-        it("does 1k")          { expect(test["1k"]).to             eq(1_000) }
-        it("does 100k")        { expect(test["100 k"]).to          eq(100_000) }
-        it("does 1000k")       { expect(test[" 1000 k "]).to       eq(1_000_000) }
-        it("does 1.345k")      { expect(test["1.345k"]).to         eq(1_345) }
-        it("does 100.345k")    { expect(test["100.345 k"]).to      eq(100_345) }
-        it("does 1000.345k")   { expect(test[" 1000.345 k "]).to   eq(1_000_345) }
+        it("does 1K")          { expect(test["1K"]).to             eq(1_024) }
+        it("does 100K")        { expect(test["100 K"]).to          eq(102_400) }
+        it("does 1000K")       { expect(test[" 1000 K "]).to       eq(1_024_000) }
+        it("does 1.345K")      { expect(test["1.345K"]).to         eq(1_377) }
+        it("does 100.345K")    { expect(test["100.345 K"]).to      eq(102_753) }
+        it("does 1000.345K")   { expect(test[" 1000.345 K "]).to   eq(1_024_353) }
+        it("does 1k")          { expect(test["1k"]).to             eq(1_024) }
+        it("does 100k")        { expect(test["100 k"]).to          eq(102_400) }
+        it("does 1000k")       { expect(test[" 1000 k "]).to       eq(1_024_000) }
+        it("does 1.345k")      { expect(test["1.345k"]).to         eq(1_377) }
+        it("does 100.345k")    { expect(test["100.345 k"]).to      eq(102_753) }
+        it("does 1000.345k")   { expect(test[" 1000.345 k "]).to   eq(1_024_353) }
         it("does 1KB")         { expect(test["1KB"]).to            eq(1_000) }
         it("does 100KB")       { expect(test["100 KB"]).to         eq(100_000) }
         it("does 1000KB")      { expect(test[" 1000 KB "]).to      eq(1_000_000) }
@@ -155,18 +155,18 @@ RSpec.describe Nuttall::Config do
       end
 
       context "mega" do
-        it("does 1M")          { expect(test["1M"]).to             eq(1_000_000) }
-        it("does 100M")        { expect(test["100 M"]).to          eq(100_000_000) }
-        it("does 1000M")       { expect(test[" 1000 M "]).to       eq(1_000_000_000) }
-        it("does 1.345M")      { expect(test["1.345M"]).to         eq(1_345_000) }
-        it("does 100.345M")    { expect(test["100.345 M"]).to      eq(100_345_000) }
-        it("does 1000.345M")   { expect(test[" 1000.345 M "]).to   eq(1_000_345_000) }
-        it("does 1m")          { expect(test["1m"]).to             eq(1_000_000) }
-        it("does 100m")        { expect(test["100 m"]).to          eq(100_000_000) }
-        it("does 1000m")       { expect(test[" 1000 m "]).to       eq(1_000_000_000) }
-        it("does 1.345m")      { expect(test["1.345m"]).to         eq(1_345_000) }
-        it("does 100.345m")    { expect(test["100.345 m"]).to      eq(100_345_000) }
-        it("does 1000.345m")   { expect(test[" 1000.345 m "]).to   eq(1_000_345_000) }
+        it("does 1M")          { expect(test["1M"]).to             eq(1_048_576) }
+        it("does 100M")        { expect(test["100 M"]).to          eq(104_857_600) }
+        it("does 1000M")       { expect(test[" 1000 M "]).to       eq(1_048_576_000) }
+        it("does 1.345M")      { expect(test["1.345M"]).to         eq(1_410_335) }
+        it("does 100.345M")    { expect(test["100.345 M"]).to      eq(105_219_359) }
+        it("does 1000.345M")   { expect(test[" 1000.345 M "]).to   eq(1_048_937_759) }
+        it("does 1m")          { expect(test["1m"]).to             eq(1_048_576) }
+        it("does 100m")        { expect(test["100 m"]).to          eq(104_857_600) }
+        it("does 1000m")       { expect(test[" 1000 m "]).to       eq(1_048_576_000) }
+        it("does 1.345m")      { expect(test["1.345m"]).to         eq(1_410_335) }
+        it("does 100.345m")    { expect(test["100.345 m"]).to      eq(105_219_359) }
+        it("does 1000.345m")   { expect(test[" 1000.345 m "]).to   eq(1_048_937_759) }
         it("does 1MB")         { expect(test["1MB"]).to            eq(1_000_000) }
         it("does 100MB")       { expect(test["100 MB"]).to         eq(100_000_000) }
         it("does 1000MB")      { expect(test[" 1000 MB "]).to      eq(1_000_000_000) }
@@ -194,18 +194,18 @@ RSpec.describe Nuttall::Config do
       end
 
       context "giga" do
-        it("does 1G")          { expect(test["1G"]).to             eq(1_000_000_000) }
-        it("does 100G")        { expect(test["100 G"]).to          eq(100_000_000_000) }
-        it("does 1000G")       { expect(test[" 1000 G "]).to       eq(1_000_000_000_000) }
-        it("does 1.345G")      { expect(test["1.345G"]).to         eq(1_345_000_000) }
-        it("does 100.345G")    { expect(test["100.345 G"]).to      eq(100_345_000_000) }
-        it("does 1000.345G")   { expect(test[" 1000.345 G "]).to   eq(1_000_345_000_000) }
-        it("does 1g")          { expect(test["1g"]).to             eq(1_000_000_000) }
-        it("does 100g")        { expect(test["100 g"]).to          eq(100_000_000_000) }
-        it("does 1000g")       { expect(test[" 1000 g "]).to       eq(1_000_000_000_000) }
-        it("does 1.345g")      { expect(test["1.345g"]).to         eq(1_345_000_000) }
-        it("does 100.345g")    { expect(test["100.345 g"]).to      eq(100_345_000_000) }
-        it("does 1000.345g")   { expect(test[" 1000.345 g "]).to   eq(1_000_345_000_000) }
+        it("does 1G")          { expect(test["1G"]).to             eq(1_073_741_824) }
+        it("does 100G")        { expect(test["100 G"]).to          eq(107_374_182_400) }
+        it("does 1000G")       { expect(test[" 1000 G "]).to       eq(1_073_741_824_000) }
+        it("does 1.345G")      { expect(test["1.345G"]).to         eq(1_444_182_753) }
+        it("does 100.345G")    { expect(test["100.345 G"]).to      eq(107_744_623_329) }
+        it("does 1000.345G")   { expect(test[" 1000.345 G "]).to   eq(1_074_112_264_929) }
+        it("does 1g")          { expect(test["1g"]).to             eq(1_073_741_824) }
+        it("does 100g")        { expect(test["100 g"]).to          eq(107_374_182_400) }
+        it("does 1000g")       { expect(test[" 1000 g "]).to       eq(1_073_741_824_000) }
+        it("does 1.345g")      { expect(test["1.345g"]).to         eq(1_444_182_753) }
+        it("does 100.345g")    { expect(test["100.345 g"]).to      eq(107_744_623_329) }
+        it("does 1000.345g")   { expect(test[" 1000.345 g "]).to   eq(1_074_112_264_929) }
         it("does 1GB")         { expect(test["1GB"]).to            eq(1_000_000_000) }
         it("does 100GB")       { expect(test["100 GB"]).to         eq(100_000_000_000) }
         it("does 1000GB")      { expect(test[" 1000 GB "]).to      eq(1_000_000_000_000) }
@@ -233,18 +233,18 @@ RSpec.describe Nuttall::Config do
       end
 
       context "tera" do
-        it("does 1T")          { expect(test["1T"]).to             eq(1_000_000_000_000) }
-        it("does 100T")        { expect(test["100 T"]).to          eq(100_000_000_000_000) }
-        it("does 1000T")       { expect(test[" 1000 T "]).to       eq(1_000_000_000_000_000) }
-        it("does 1.345T")      { expect(test["1.345T"]).to         eq(1_345_000_000_000) }
-        it("does 100.345T")    { expect(test["100.345 T"]).to      eq(100_345_000_000_000) }
-        it("does 1000.345T")   { expect(test[" 1000.345 T "]).to   eq(1_000_345_000_000_000) }
-        it("does 1t")          { expect(test["1t"]).to             eq(1_000_000_000_000) }
-        it("does 100t")        { expect(test["100 t"]).to          eq(100_000_000_000_000) }
-        it("does 1000t")       { expect(test[" 1000 t "]).to       eq(1_000_000_000_000_000) }
-        it("does 1.345t")      { expect(test["1.345t"]).to         eq(1_345_000_000_000) }
-        it("does 100.345t")    { expect(test["100.345 t"]).to      eq(100_345_000_000_000) }
-        it("does 1000.345t")   { expect(test[" 1000.345 t "]).to   eq(1_000_345_000_000_000) }
+        it("does 1T")          { expect(test["1T"]).to             eq(1_099_511_627_776) }
+        it("does 100T")        { expect(test["100 T"]).to          eq(109_951_162_777_600) }
+        it("does 1000T")       { expect(test[" 1000 T "]).to       eq(1_099_511_627_776_000) }
+        it("does 1.345T")      { expect(test["1.345T"]).to         eq(1_478_843_139_359) }
+        it("does 100.345T")    { expect(test["100.345 T"]).to      eq(110_330_494_289_183) }
+        it("does 1000.345T")   { expect(test[" 1000.345 T "]).to   eq(1_099_890_959_287_583) }
+        it("does 1t")          { expect(test["1t"]).to             eq(1_099_511_627_776) }
+        it("does 100t")        { expect(test["100 t"]).to          eq(109_951_162_777_600) }
+        it("does 1000t")       { expect(test[" 1000 t "]).to       eq(1_099_511_627_776_000) }
+        it("does 1.345t")      { expect(test["1.345t"]).to         eq(1_478_843_139_359) }
+        it("does 100.345t")    { expect(test["100.345 t"]).to      eq(110_330_494_289_183) }
+        it("does 1000.345t")   { expect(test[" 1000.345 t "]).to   eq(1_099_890_959_287_583) }
         it("does 1TB")         { expect(test["1TB"]).to            eq(1_000_000_000_000) }
         it("does 100TB")       { expect(test["100 TB"]).to         eq(100_000_000_000_000) }
         it("does 1000TB")      { expect(test[" 1000 TB "]).to      eq(1_000_000_000_000_000) }
@@ -272,18 +272,18 @@ RSpec.describe Nuttall::Config do
       end
 
       context "peta" do
-        it("does 1P")          { expect(test["1P"]).to             eq(1_000_000_000_000_000) }
-        it("does 100P")        { expect(test["100 P"]).to          eq(100_000_000_000_000_000) }
-        it("does 1000P")       { expect(test[" 1000 P "]).to       eq(1_000_000_000_000_000_000) }
-        it("does 1.345P")      { expect(test["1.345P"]).to         eq(1_345_000_000_000_000) }
-        it("does 100.345P")    { expect(test["100.345 P"]).to      eq(100_345_000_000_000_000) }
-        it("does 1000.345P")   { expect(test[" 1000.345 P "]).to   eq(1_000_345_000_000_000_000) }
-        it("does 1p")          { expect(test["1p"]).to             eq(1_000_000_000_000_000) }
-        it("does 100p")        { expect(test["100 p"]).to          eq(100_000_000_000_000_000) }
-        it("does 1000p")       { expect(test[" 1000 p "]).to       eq(1_000_000_000_000_000_000) }
-        it("does 1.345p")      { expect(test["1.345p"]).to         eq(1_345_000_000_000_000) }
-        it("does 100.345p")    { expect(test["100.345 p"]).to      eq(100_345_000_000_000_000) }
-        it("does 1000.345p")   { expect(test[" 1000.345 p "]).to   eq(1_000_345_000_000_000_000) }
+        it("does 1P")          { expect(test["1P"]).to             eq(1_125_899_906_842_624) }
+        it("does 100P")        { expect(test["100 P"]).to          eq(112_589_990_684_262_400) }
+        it("does 1000P")       { expect(test[" 1000 P "]).to       eq(1_125_899_906_842_624_000) }
+        it("does 1.345P")      { expect(test["1.345P"]).to         eq(1_514_335_374_703_329) }
+        it("does 100.345P")    { expect(test["100.345 P"]).to      eq(112_978_426_152_123_104) }
+        it("does 1000.345P")   { expect(test[" 1000.345 P "]).to   eq(1_126_288_342_310_484_736) }
+        it("does 1p")          { expect(test["1p"]).to             eq(1_125_899_906_842_624) }
+        it("does 100p")        { expect(test["100 p"]).to          eq(112_589_990_684_262_400) }
+        it("does 1000p")       { expect(test[" 1000 p "]).to       eq(1_125_899_906_842_624_000) }
+        it("does 1.345p")      { expect(test["1.345p"]).to         eq(1_514_335_374_703_329) }
+        it("does 100.345p")    { expect(test["100.345 p"]).to      eq(112_978_426_152_123_104) }
+        it("does 1000.345p")   { expect(test[" 1000.345 p "]).to   eq(1_126_288_342_310_484_736) }
         it("does 1PB")         { expect(test["1PB"]).to            eq(1_000_000_000_000_000) }
         it("does 100PB")       { expect(test["100 PB"]).to         eq(100_000_000_000_000_000) }
         it("does 1000PB")      { expect(test[" 1000 PB "]).to      eq(1_000_000_000_000_000_000) }
@@ -971,7 +971,7 @@ RSpec.describe Nuttall::Config do
       { dir: subject.default_workdir, tried: tried }
     end
 
-    let(:try_dirs) { %w[/opt /var/local /var/opt /usr/local /usr/share] } # Match method
+    let(:try_dirs) { Nuttall::Config::PREFERRED_WORKDIRS }
 
     before do
       subject.instance_eval { @default_workdir = nil }
