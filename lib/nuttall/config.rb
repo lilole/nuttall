@@ -46,9 +46,7 @@ module Nuttall
 
     def defaults_file = File.join(defaults_file_dir, "#{file_basename}.defaults")
 
-    def user_file
-      @user_file ||= defaults_file # Can be changed via attr
-    end
+    def user_file = @user_file ||= defaults_file # Can be changed via attr
 
     def user_file_settings(ignore_err: true)
       @user_file_settings ||= YAML.load(File.read(user_file)).as_struct
