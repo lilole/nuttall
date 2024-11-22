@@ -3,12 +3,20 @@
 # Copyright 2024 Dan Higgins
 # SPDX-License-Identifier: Apache-2.0
 
+require "io/console"
 require "reline"
 
 module Nuttall
 module Mixin
   module Asker
-    class AskerClass
+    ### Support prompting user for an input value.
+      # Features:
+      #   - Line editing, with history of previous inputs.
+      #   - Multi-line notes below the prompt for user guidance.
+      #   - Editing preloaded values stored in a hash.
+      #   - Using one or more "-" chars to cancel.
+      #
+    class AskValueClass
       attr_reader :prompt, :target_hash, :target_key, :default_last, :nil_blank, :pass_blank, :last, :notes
 
       def initialize(prompt, target_hash, target_key, default_last, nil_blank, pass_blank, notes)
@@ -100,10 +108,70 @@ module Mixin
       def blank?(obj) = ! obj || String === obj && obj.strip.empty?
 
       def size?(obj) = ! blank?(obj)
-    end # AskerClass
+    end # AskValueClass
 
-    def ask(prompt, target_hash=nil, target_key=nil, notes: nil, default_last: true, nil_blank: true, pass_blank: false)
-      AskerClass.new(prompt, target_hash, target_key, default_last, nil_blank, pass_blank, notes).run
+    ### Support prompting user for confirmation before continuing.
+      # The `choices` may be any string of typable characters, with a single
+      # uppercase to be the default if user presses Enter.
+      #
+      # If the choice is "q", then exit immediately.
+      # If the choice is "y" or "n", then return Boolean.
+      # Any other choice returns the character.
+      # Ctrl-C is treated like "n".
+      #
+    class AskConfirmClass
+      def self.run(prompt, choices)
+        def_reply = choices.gsub(/[a-z]+/, "")
+        raise "Only 1 uppercase is allowed: #{choices.inspect}" if def_reply.size > 1
+
+        puts ""
+        begin
+          print "#{prompt} [#{choices}] "; $stdout.flush
+
+          begin
+            reply = $stdin.getch(intr: true).chomp
+          rescue SignalException => e
+            if e.signo == 2 # SIGINT
+              puts "^C"
+              lreply = "n"
+              break
+            end
+          end
+          reply = def_reply if reply.empty? && ! def_reply.empty?
+          lreply = reply.downcase
+
+          puts lreply
+        end until lreply =~ /^[#{choices.downcase}]$/
+        puts ""
+
+        exit if lreply == "q"
+        %w[y n].member?(lreply) ? lreply == "y" : reply
+      end
+    end # AskConfirmClass
+
+    def ask(prompt, choices_or_target_hash, *args, **kargs)
+      choices_or_target_hash.then do |arg1|
+        if String === arg1
+          choices = arg1
+          AskConfirmClass.run(prompt, choices)
+
+        elsif arg1.nil? || arg1.respond_to?(:each_pair)
+          raise "Invalid extra args after target_key: #{args[1..-1].inspect}" if args.size > 1
+          def_kargs = { default_last: true, nil_blank: true, notes: nil, pass_blank: false }
+          bad_kargs = kargs.keys - def_kargs.keys
+          raise "Invalid keyword args: #{bad_kargs.inspect}" if bad_kargs.any?
+
+          target_hash = arg1
+          target_key  = args[0]
+          kargs       = def_kargs.merge(kargs)
+          AskValueClass.new(prompt, target_hash, target_key,
+            kargs[:default_last], kargs[:nil_blank], kargs[:pass_blank], kargs[:notes]
+          ).run
+
+        else
+          raise "Invalid choices_or_target_hash: #{arg1.inspect}"
+        end
+      end
     end
   end
 end
