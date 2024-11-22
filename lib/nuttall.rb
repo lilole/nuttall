@@ -4,7 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 module Nuttall
-  VERSION = File.read(File.expand_path("../VERSION", __dir__)).strip
+  APP_DIR = File.expand_path("..", __dir__)
+
+  VERSION = File.read("#{APP_DIR}/VERSION").strip
 
   Extensions.apply
 end
