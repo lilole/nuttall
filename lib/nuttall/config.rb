@@ -3,6 +3,7 @@
 # Copyright 2024 Dan Higgins
 # SPDX-License-Identifier: Apache-2.0
 
+require "fileutils"
 require "yaml"
 
 module Nuttall
@@ -35,16 +36,18 @@ module Nuttall
     def defaults_file_dir
       @defaults_file_dir ||= begin
         parents = %W[
-          #{user_home}/.config #{user_home}/.local/share #{user_home}
+          #{user_home}/.config/#{file_basename}
+          #{user_home}/.local/share/#{file_basename}
+          #{user_home}/.#{file_basename}
         ]
-        parents.detect { |dir| File.writable?(dir) } or
+        parents.detect { |dir| File.writable?(File.dirname(dir)) } or
           raise "Cannot find suitable parent dir for defaults file: Tried: #{parents}"
       end
     end
 
     def file_basename = "nuttall"
 
-    def defaults_file = File.join(defaults_file_dir, "#{file_basename}.defaults")
+    def defaults_file = File.join(defaults_file_dir, "defaults.yml")
 
     def user_file = @user_file ||= defaults_file # Can be changed via attr
 
@@ -64,6 +67,8 @@ module Nuttall
 
     def save_user_file(path=nil)
       path ||= user_file
+      dir = File.dirname(path)
+      FileUtils.mkdir_p(dir) if ! File.directory?(dir)
       File.write(path, user_file_text)
     end
 
@@ -138,7 +143,9 @@ module Nuttall
       }.as_struct
     end
 
-    def default_name = @default_name ||= "nuttall-#{host_hash}"
+    def default_name = @default_name ||= "#{file_basename}-#{config_id}"
+
+    def config_id = @config_id ||= host_hash
 
     PREFERRED_WORKDIRS = %w[/opt /var/local /var/opt /usr/local /usr/share].freeze
 
