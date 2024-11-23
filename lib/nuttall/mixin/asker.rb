@@ -117,7 +117,7 @@ module Mixin
       # If the choice is "q", then exit immediately.
       # If the choice is "y" or "n", then return Boolean.
       # Any other choice returns the character.
-      # Ctrl-C is treated like "n".
+      # Ctrl-C is treated like "q".
       #
     class AskConfirmClass
       def self.run(prompt, choices)
@@ -133,7 +133,7 @@ module Mixin
           rescue SignalException => e
             if e.signo == 2 # SIGINT
               puts "^C"
-              lreply = "n"
+              lreply = "q"
               break
             end
           end
@@ -142,7 +142,6 @@ module Mixin
 
           puts lreply
         end until lreply =~ /^[#{choices.downcase}]$/
-        puts ""
 
         exit if lreply == "q"
         %w[y n].member?(lreply) ? lreply == "y" : reply
