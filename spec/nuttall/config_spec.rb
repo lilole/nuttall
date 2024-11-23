@@ -61,17 +61,35 @@ RSpec.describe Nuttall::Config do
     end
 
     it "raises on none found" do
-      expect(subject).to receive(:user_home).exactly(3).times.and_return("/no_such_dir")
+      expect(subject).to receive(:user_home).at_least(1).time.and_return("/no_such_dir")
       expect { subject.user_file }.to raise_error(/Cannot find .+ parent dir/)
     end
 
-    it "caches and returns on writable dir" do
-      ENV["HOME"] = "/fake_arse_dir"
-      part1 = "#{ENV["HOME"]}/.config"
-      part2 = "#{part1}/nuttall.defaults"
-      expect(File).to receive(:writable?).with(part1).once.and_return(true)
-      expect(subject.user_file).to eq(part2)
-      expect(subject.instance_eval { @user_file }).to eq(part2)
+    context "caches and returns on writable dir" do
+      before do
+        ENV["HOME"] = "/fake_arse_dir"
+        expect(subject.instance_eval { @user_file }).to be_nil
+      end
+
+      after do
+        expect(subject.instance_eval { @user_file }).to eq(@part2)
+      end
+
+      it "with non dotted dirname" do
+        @part1 = "#{ENV["HOME"]}/.config"
+        @part2 = "#{@part1}/nuttall/defaults.yml"
+        expect(File).to receive(:writable?).at_least(1).time { |arg| arg == @part1 }
+
+        expect(subject.user_file).to eq(@part2)
+      end
+
+      it "with dotted dirname" do
+        @part1 = "#{ENV["HOME"]}"
+        @part2 = "#{@part1}/.nuttall/defaults.yml"
+        expect(File).to receive(:writable?).at_least(1).time { |arg| arg == @part1 }
+
+        expect(subject.user_file).to eq(@part2)
+      end
     end
   end
 
