@@ -3,7 +3,7 @@
 # Copyright 2024 Dan Higgins
 # SPDX-License-Identifier: Apache-2.0
 
-require 'fileutils'
+require "fileutils"
 
 module Nuttall
 module Op
@@ -11,10 +11,11 @@ module Create
   class Core
     include Nuttall::Mixin::Asker
     include Nuttall::Mixin::FsInfo
+    include Nuttall::Mixin::SecureKey
 
     class SettingsAborted < RuntimeError; end
 
-    attr_reader :config, :settings
+    attr_reader :config, :encryption_key, :settings
 
     def initialize(config)
       @config = config
@@ -359,6 +360,48 @@ module Create
               return false
             end
             settings.policy.discard.exports = input.truthy?
+            true
+          end
+        end
+
+        steps << Step.new.tap do |step|
+          step.index = 10
+
+          step.work = -> do
+            ask("\nStore encryption key in container", settings, %i[policy key container], notes: <<~END)
+              - If your server has multiple people who can login as root or run docker,
+                then this should probably be "false".
+              - If "false", then note:
+                - The generated key will be displayed temporarily, and you MUST copy/paste
+                  it into a secure storage manager of your choice, such as KeePass,
+                  RoboForm, AWS SecretsManager, etc.
+                - This key must be pasted into the terminal every time the container
+                  starts up. Or, secure storage manager integration may be made
+                  available for your environment.
+              - If "true", then the generated key will be given as a build arg for the
+                container. This is secure if your root credentials and docker command
+                privileges are locked down to you and a few very trusted users.
+            END
+          end
+
+          step.validate = ->(input) do
+            if ! %w[true t false f].member?(input)
+              puts "\nOnly \"t[rue]\" or \"f[alse]\" is valid."
+              return false
+            end
+            use_container = input.truthy?
+            settings.policy.key.container = use_container
+            key = @encryption_key = SecureKey.generate_typable
+
+            if ! use_container
+              ask("About to display encryption key for this container. Are you sure?", "Yn") or return false
+              puts "\nCopy/paste this key into your secure storage manager."
+              puts "Press Enter when done, and the key will be erased from the terminal:"
+              puts "\n#{key}"; $stdout.flush
+              $stdin.gets
+              puts "\e[A" * 2 + " " * key.size
+            end
+
             true
           end
         end
