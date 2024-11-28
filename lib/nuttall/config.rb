@@ -52,7 +52,7 @@ module Nuttall
     def user_file = @user_file ||= defaults_file # Can be changed via attr
 
     def user_file_settings(ignore_err: true)
-      @user_file_settings ||= YAML.load(File.read(user_file)).as_struct
+      @user_file_settings ||= YAML.load(File.read(user_file)).overlay(user_file_defaults_hash).as_struct
     rescue
       raise if ! ignore_err
       @user_file_settings ||= user_file_defaults
@@ -114,7 +114,9 @@ module Nuttall
       (num * mult).round
     end
 
-    def user_file_defaults
+    def user_file_defaults = user_file_defaults_hash.as_struct
+
+    def user_file_defaults_hash
       {
         container: {
           name:    nil,
@@ -138,9 +140,12 @@ module Nuttall
           discard: {
             index:   false,
             exports: true
+          },
+          key: {
+            container: true
           }
         }
-      }.as_struct
+      }
     end
 
     def default_name = @default_name ||= "#{file_basename}-#{config_id}"
