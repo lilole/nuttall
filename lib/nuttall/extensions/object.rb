@@ -10,6 +10,7 @@ module Extensions
       ::Object.include AsStruct
       ::Object.include DeepToH
       ::Object.include Dig2
+      ::Object.include Ellipsify
       ::Object.include FalseyTruthy
       ::Object.include Overlay
       ::Object.include Visit
@@ -71,6 +72,25 @@ module Extensions
         indexes.empty? ? self : dig(*indexes)
       end
     end # Dig2
+
+    module Ellipsify
+      ### Convert to a String with `#inspect`, and truncate to a max length if
+        # needed. If truncated, place a configurable ellipsis delimiter at some
+        # fraction of the length.
+        #
+      def ellipsify(max_len=40, delim: "...", place: 0.5, keep_quotes: true)
+        max_len = delim.size if max_len < delim.size
+
+        str = inspect
+        str.gsub!(/\A"|"\z/, "") if ! keep_quotes
+
+        return str if str.size <= max_len
+
+        left_sz  = [(place * max_len - 0.5 * delim.size).round, 0].max
+        right_sz = [max_len - left_sz - delim.size, 0].max
+        str[0, left_sz] << delim << str[-right_sz, right_sz]
+      end
+    end # Ellipsify
 
     ### Add `#falsey?` and `#truthy?` methods that handle String values with
       # variations of "true" or "yes".
