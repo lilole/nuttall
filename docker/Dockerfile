@@ -9,6 +9,7 @@ RUN \
     lvm2 \
     ruby \
     ruby-bundler \
+    sqlite \
     && \
   echo 'gem: --no-document' > /etc/gemrc \
     && \
@@ -23,3 +24,6 @@ RUN \
     && \
   : "Clean up what we can in same layer" && \
   apk del build-base ruby-dev libffi-dev
+
+# Layers above should remain cached, only this one cannot be cached
+COPY disk_key* /app/
