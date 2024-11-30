@@ -13,12 +13,11 @@ module Mixin
 
     def self.generate_typable(bits: 512, force: false)
       assert_valid_bits(bits) if ! force
-      max_chars = best_typable_length(bits)
-      begin
-        bin_key = generate_binary(bits: bits, force: true)
-        str_key = Base64.urlsafe_encode64(bin_key, padding: false)
-      end while str_key.size < max_chars
-      str_key
+      bin_key = generate_binary(bits: bits, force: true)
+      key = Base64.urlsafe_encode64(bin_key, padding: false)
+      expect_sz = best_typable_length(bits)
+      raise "Invalid generated length: Expected #{expect_sz}, got #{key.size}" if key.size != expect_sz
+      key
     end
 
     def self.assert_valid_bits(bits)
