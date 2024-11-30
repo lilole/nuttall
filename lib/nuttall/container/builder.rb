@@ -13,10 +13,11 @@ module Container
     include Mixin::Asker
     include Mixin::Bash
 
-    attr_reader :config, :settings
+    attr_reader :config, :disk_key, :settings
 
-    def initialize(config)
-      @config = config
+    def initialize(config, disk_key)
+      @config   = config
+      @disk_key = disk_key
       @settings = config.user_file_settings
     end
 
@@ -24,7 +25,12 @@ module Container
       return if ! need_new_image?
       return if ! user_confirm
       prep_docker_dir
-      docker_build
+      begin
+        docker_build
+      ensure
+        scrub_docker_dir
+      end
+      wipe_docker_dir
     end
 
     def need_new_image?
@@ -46,9 +52,8 @@ module Container
 
     def prep_docker_dir
       defs_filename = File.basename(config.defaults_file)
+      reset_docker_dir
       FileUtils.then do |fs|
-        fs.rm_rf(docker_dir)
-        fs.mkdir_p(docker_dir("app"))
         fs.cp_r(dir_subpaths(app_dir("docker")), docker_dir)
         fs.cp_r(app_dir("exe"),                  docker_dir("app"))
         fs.cp_r(app_dir("lib"),                  docker_dir("app"))
@@ -56,7 +61,28 @@ module Container
         fs.cp_r(app_dir("Gemfile"),              docker_dir("app"))
         fs.cp_r(app_dir("Gemfile.lock"),         docker_dir("app"))
         fs.cp_r(config.user_file,                docker_dir("app", defs_filename))
+
+        if settings.policy.key.container
+          docker_dir("disk_key").then do |path|
+            File.write(path, disk_key, opts: 0600)
+            File.chmod(0400, path)
+          end
+        end
       end
+    end
+
+    def scrub_docker_dir
+      FileUtils.rm_f(docker_dir("disk_key"))
+    end
+
+    def reset_docker_dir
+      wipe_docker_dir
+      FileUtils.mkdir_p(docker_dir,        mode: 0700)
+      FileUtils.mkdir_p(docker_dir("app"), mode: 0700)
+    end
+
+    def wipe_docker_dir
+      FileUtils.rm_rf(docker_dir)
     end
 
     def docker_build
@@ -76,7 +102,7 @@ module Container
     def docker_image_tag = config.config_id
 
     def docker_dir(*subs)
-      @docker_dir ||= File.join(Dir.tmpdir, config.file_basename)
+      @docker_dir ||= File.join(Dir.tmpdir, settings.container.name)
       to_path(@docker_dir, *subs)
     end
 
