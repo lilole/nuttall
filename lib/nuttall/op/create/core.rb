@@ -31,7 +31,7 @@ module Create
       save_defaults_file
       prep_workdir
       save_settings
-      Nuttall::Container::Builder.new(config).run
+      Nuttall::Container::Builder.new(config, encryption_key).run
     end
 
     def get_settings
@@ -56,16 +56,35 @@ module Create
     end
 
     def save_defaults_file
-      saved = [settings.container.workdir, settings.container.name]
-      settings.container.workdir = settings.container.name = nil
+      ignore_changed = [
+        [[:container], :workdir],
+        [[:container], :name]
+      ]
+      reset_ignored_values(ignore_changed)
 
       defaults = config.defaults_file
       if ! File.exist?(defaults) || File.read(defaults) != config.user_file_text
-        config.save_user_file(defaults)
+        config.save_user_file
         puts "\nSaved default values to #{defaults.inspect}."
       end
 
-      settings.container.workdir, settings.container.name = saved
+      restore_ignored_values(ignore_changed)
+    end
+
+    def reset_ignored_values(ignore_changed)
+      orig_settings = config.load_user_file
+      ignore_changed.each do |tuple|
+        dig_args, key = tuple[0, 2]
+        tuple << settings.dig(*dig_args)[key]
+        settings.dig(*dig_args)[key] = orig_settings.dig(*dig_args)[key]
+      end
+    end
+
+    def restore_ignored_values(ignore_changed)
+      ignore_changed.each do |tuple|
+        dig_args, key, saved_value = tuple[0, 3]
+        settings.dig(*dig_args)[key] = saved_value
+      end
     end
 
     def prep_workdir
@@ -198,7 +217,7 @@ module Create
           step.work = -> do
             ask("\nMax disk size", settings, %i[disk size max], notes: <<~END)
               - This is the max size of the virtual disk of the Nuttall container.
-              - If the virtual disk size grows to this amount, it may start to fill up.
+              - If the virtual disk size grows to this value, it may start to fill up.
               - Standard suffixes like "K" & "KiB" for 1024s or "KB" for 1000s are supported.
               - A suffix of "%" means percent of the work dir's total filesystem.
             END
@@ -257,9 +276,9 @@ module Create
           step.work = -> do
             ask("\nEncrypt the virtual disk", settings, %i[disk encrypt enable], notes: <<~END)
               - If "true" then the container's virtual disk will be encrypted with an
-                auto generated key stored only inside the container.
-              - This should be enabled unless you need the max possible disk speed,
-                or if you are testing with non-production log data.
+                auto generated key.
+              - This should be enabled unless you are more concerned about disk speed
+                than security, or if you are testing with non-production log data.
             END
           end
 
@@ -378,9 +397,9 @@ module Create
                 - This key must be pasted into the terminal every time the container
                   starts up. Or, secure storage manager integration may be made
                   available for your environment.
-              - If "true", then the generated key will be given as a build arg for the
+              - If "true", then the generated key will be saved for root only inside the
                 container. This is secure if your root credentials and docker command
-                privileges are locked down to you and a few very trusted users.
+                privileges are locked down to you and very few very trusted users.
             END
           end
 
@@ -391,8 +410,8 @@ module Create
             end
             use_container = input.truthy?
             settings.policy.key.container = use_container
-            key = @encryption_key = SecureKey.generate_typable
 
+            key = @encryption_key = SecureKey.generate_typable
             if ! use_container
               ask("About to display encryption key for this container. Are you sure?", "Yn") or return false
               puts "\nCopy/paste this key into your secure storage manager."
