@@ -51,16 +51,14 @@ module Nuttall
 
     def user_file = @user_file ||= defaults_file # Can be changed via attr
 
-    def user_file_settings(ignore_err: true)
-      @user_file_settings ||= YAML.load(File.read(user_file)).overlay(user_file_defaults_hash).as_struct
+    def user_file_settings = @user_file_settings ||= load_user_file(ignore_err: true)
+
+    def load_user_file(path=nil, ignore_err: false)
+      path ||= user_file
+      YAML.load(File.read(path)).overlay(user_file_defaults_hash).as_struct
     rescue
       raise if ! ignore_err
-      @user_file_settings ||= user_file_defaults
-    end
-
-    def load_user_file
-      @user_file_settings = nil
-      user_file_settings(ignore_err: false)
+      user_file_defaults
     end
 
     def user_file_text = user_file_settings.deep_to_h.to_yaml
