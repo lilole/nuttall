@@ -53,21 +53,23 @@ module Container
     def prep_docker_dir
       defs_filename = File.basename(config.defaults_file)
       reset_docker_dir
-      FileUtils.then do |fs|
-        fs.cp_r(dir_subpaths(app_dir("docker")), docker_dir)
-        fs.cp_r(app_dir("exe"),                  docker_dir("app"))
-        fs.cp_r(app_dir("lib"),                  docker_dir("app"))
-        fs.cp_r(app_dir("VERSION"),              docker_dir("app"))
-        fs.cp_r(app_dir("Gemfile"),              docker_dir("app"))
-        fs.cp_r(app_dir("Gemfile.lock"),         docker_dir("app"))
-        fs.cp_r(config.user_file,                docker_dir("app", defs_filename))
 
-        if settings.policy.key.container
-          docker_dir("disk_key").then do |path|
-            File.write(path, disk_key, opts: 0600)
-            File.chmod(0400, path)
-          end
-        end
+      cp = ->(*paths) do
+        paths[0..-2].each { FileUtils.cp_r(_1, paths[-1], preserve: true) }
+      end
+
+      cp[dir_subpaths(app_dir("docker")), docker_dir]
+      cp[app_dir("exe"),                  docker_dir("app")]
+      cp[app_dir("lib"),                  docker_dir("app")]
+      cp[app_dir("VERSION"),              docker_dir("app")]
+      cp[app_dir("Gemfile"),              docker_dir("app")]
+      cp[app_dir("Gemfile.lock"),         docker_dir("app")]
+      cp[config.user_file,                docker_dir("app", defs_filename)]
+
+      if settings.policy.key.container
+        key_file = docker_dir("disk_key")
+        File.write(key_file, disk_key, opts: 0600)
+        File.chmod(0400, key_file)
       end
     end
 
@@ -99,7 +101,7 @@ module Container
 
     def docker_image_name = "#{config.file_basename}/server"
 
-    def docker_image_tag = config.config_id
+    def docker_image_tag = settings.container.id
 
     def docker_dir(*subs)
       @docker_dir ||= File.join(Dir.tmpdir, settings.container.name)
