@@ -57,8 +57,9 @@ module Create
 
     def save_defaults_file
       ignore_changed = [
+        [[:container], :id],
+        [[:container], :name],
         [[:container], :workdir],
-        [[:container], :name]
       ]
       reset_ignored_values(ignore_changed)
 
@@ -95,6 +96,8 @@ module Create
 
     def save_settings
       enforce_parsed_settings
+      config.user_file = File.join(config.defaults_file_dir, "#{settings.container.name}.yml")
+      config.save_user_file
       config.user_file = File.join(container_dir, "settings.yml")
       config.save_user_file
       puts(<<~END)
@@ -163,6 +166,7 @@ module Create
           step.index = 1
 
           step.work = -> do
+            settings.container.id   ||= config.config_id
             settings.container.name ||= config.default_name
             ask("\nContainer name", settings, %i[container name], notes: <<~END)
               - This must be unique within the current host.
