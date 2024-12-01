@@ -117,6 +117,7 @@ module Nuttall
     def user_file_defaults_hash
       {
         container: {
+          id:      nil,
           name:    nil,
           workdir: nil
         },
@@ -132,12 +133,12 @@ module Nuttall
         },
         policy: {
           retain: {
-            index:   "1 mo",
-            exports: "6 mo"
+            index:     "1 mo",
+            exports:   "6 mo"
           },
           discard: {
-            index:   false,
-            exports: true
+            index:     false,
+            exports:   true
           },
           key: {
             container: true
@@ -163,7 +164,8 @@ module Nuttall
           end
         end
 
-        infos.first[:path]
+        info = infos.detect { Dir.exist?(_1[:path]) } || infos.first
+        info[:path]
       end
     end
   end
