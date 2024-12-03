@@ -5,15 +5,16 @@
 
 module Nuttall
 module Mixin
-  ### Single method arg processor. Example usage:
+  ### Full arg processing in a single method. Example usage:
     #   argie(args) do |arg|
     #     arg.option?(%w[help h ?]) { usage }
     #     arg.option?("base=", "b=", /^--(?<param>\d+)$/) { config[:base] = arg.value.to_i }
     #     arg.literal? do
-    #       config[:input_file] ||= arg.value
-    #       config[:max]        ||= arg.value.to_i
+    #       if    ! config[:input_file] then config[:input_file] = arg.value
+    #       elsif ! config[:max]        then config[:max] = arg.value.to_i
+    #       end
     #     end
-    #     usage("Invalid arg: #{arg.value.inspect}") if arg.unused?
+    #     usage("Invalid arg: #{arg.raw.inspect}") if arg.unused?
     #   end
     #
   module Argie
@@ -41,8 +42,8 @@ module Mixin
         # match `--42` and assign the option value to "42".
         #
       def option?(*opts, &if_yes)
-        if opts.empty? || literal?
-          if_yes[] if if_yes && ! literal?
+        if opts.empty? || ! is_option
+          if_yes[] if if_yes && is_option
           return is_option
         end
 
