@@ -118,23 +118,29 @@ RSpec.describe Nuttall::Config do
       expect(subject).to receive(:user_file).once.and_return(nil) # Forces raise
     end
 
-    it "ignores error if set" do
+    it "ignores error" do
       expect(subject).to receive(:user_file_defaults).once.and_return("fake")
 
       expect(subject.instance_eval { @user_file_settings }).to be_nil
-      expect(subject.user_file_settings(ignore_err: true)).to eq("fake")
+      expect(subject.user_file_settings).to eq("fake")
       expect(subject.instance_eval { @user_file_settings }).to eq("fake")
-    end
-
-    it "raises error if set" do
-      expect { subject.user_file_settings(ignore_err: false) }.to raise_error(/conversion of nil/)
     end
   end
 
   describe "#load_user_file" do
-    it "does not ignore errors" do
+    before do
       expect(subject).to receive(:user_file).once.and_return(nil) # Forces raise
+    end
+
+    it "does not ignore errors" do
       expect { subject.load_user_file }.to raise_error(/conversion of nil/)
+    end
+
+    it "ignores error if set" do
+      expect(subject).to receive(:user_file_defaults).once.and_return("fake")
+      result = nil
+      expect { result = subject.load_user_file(ignore_err: true) }.to_not raise_error
+      expect(result).to eq("fake")
     end
   end
 
