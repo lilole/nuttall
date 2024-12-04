@@ -275,118 +275,264 @@ RSpec.describe Nuttall::Mixin::Argie do
 
   describe "#literal?" do
     it "takes a block" do
+      test = ->(arg) { arg.literal? { nil } }
+      expect { subject.argie(%w[a b], &test) }.to_not raise_error
     end
 
     it "takes no block" do
+      test = ->(arg) { arg.literal? }
+      expect { subject.argie(%w[a b], &test) }.to_not raise_error
     end
 
     it "is false for option" do
+      value = nil
+      test = ->(arg) { value = arg.literal? }
+      subject.argie(%w[-x], &test)
+      expect(value).to eq(false)
     end
 
     it "is true for non-option" do
+      value = nil
+      test = ->(arg) { value = arg.literal? }
+      subject.argie(%w[fake], &test)
+      expect(value).to eq(true)
     end
 
     it "calls block if non-option" do
+      value = nil
+      test = ->(arg) { arg.literal? { value = "yo" } }
+      subject.argie(%w[fake], &test)
+      expect(value).to eq("yo")
     end
 
     it "ignores block if option" do
+      value = nil
+      test = ->(arg) { arg.literal? { value = "yo" } }
+      subject.argie(%w[-x], &test)
+      expect(value).to eq(nil)
     end
   end
 
   describe "#value" do
     it "returns param for long option with =" do
+      value = nil
+      test = ->(arg) { arg.option?(%w[long-x=]) and value = arg.value }
+      subject.argie(%w[--long-x=foo], &test)
+      expect(value).to eq("foo")
     end
 
     it "returns param for long option without =" do
+      value = nil
+      test = ->(arg) { arg.option?(%w[long-x=]) and value = arg.value }
+      subject.argie(%w[--long-x foo], &test)
+      expect(value).to eq("foo")
     end
 
     it "returns param for short option with space" do
+      value = nil
+      test = ->(arg) { arg.option?(%w[x=]) and value = arg.value }
+      subject.argie(%w[-x foo], &test)
+      expect(value).to eq("foo")
     end
 
     it "returns param for short option with no space" do
+      value = nil
+      test = ->(arg) { arg.option?(%w[x=]) and value = arg.value }
+      subject.argie(%w[-xfoo], &test)
+      expect(value).to eq("foo")
     end
 
     it "marks used if matches long param" do
+      used1 = used2 = nil
+      test = ->(arg) do
+        used1.nil? and used1 = arg.used?
+        arg.option?(%w[long-x]) and (arg.value; used2 = arg.used?)
+      end
+      subject.argie(%w[--long-x], &test)
+      expect(used1).to be(false)
+      expect(used2).to be(true)
     end
 
     it "marks used if matches short param" do
+      used1 = used2 = nil
+      test = ->(arg) do
+        used1.nil? and used1 = arg.used?
+        arg.option?(%w[x]) and (arg.value; used2 = arg.used?)
+      end
+      subject.argie(%w[-x], &test)
+      expect(used1).to be(false)
+      expect(used2).to be(true)
     end
 
     it "returns arg if not option" do
+      value = nil
+      test = ->(arg) { value = arg.value }
+      subject.argie(%w[fake], &test)
+      expect(value).to eq("fake")
     end
 
     it "marks used if not option" do
+      used1 = used2 = nil
+      test = ->(arg) do
+        used1 = arg.used?
+        arg.value
+        used2 = arg.used?
+      end
+      subject.argie(%w[-x], &test)
+      expect(used1).to be(false)
+      expect(used2).to be(true)
     end
   end
 
   describe "#next!" do
     it "increments index" do
+      value1 = value2 = nil
+      test = ->(arg) { value1 = arg.index; arg.next!; value2 = arg.index }
+      subject.argie(%w[a b], &test)
+      expect(value1).to eq(0)
+      expect(value2).to eq(1)
     end
 
     it "marks used" do
+      value1 = value2 = nil
+      test = ->(arg) { value1 = arg.used?; arg.next!; value2 = arg.used? }
+      subject.argie(%w[a], &test)
+      expect(value1).to be(false)
+      expect(value2).to be(true)
     end
 
     it "returns next arg" do
+      value = nil
+      test = ->(arg) { value = arg.next! }
+      subject.argie(%w[a b], &test)
+      expect(value).to eq("b")
     end
   end
 
   describe "#parse_options?" do
     it "returns true by default" do
+      value = nil
+      test = ->(arg) { value = arg.parse_options? }
+      subject.argie(%w[a], &test)
+      expect(value).to be(true)
     end
 
     it "returns false after --" do
+      value = nil
+      test = ->(arg) { value = arg.parse_options? if arg.raw == "b" }
+      subject.argie(%w[a -- b], &test)
+      expect(value).to be(false)
     end
   end
 
   describe "#raw" do
     it "marks used" do
+      value1 = value2 = nil
+      test = ->(arg) { value1 = arg.used?; arg.raw; value2 = arg.used? }
+      subject.argie(%w[a], &test)
+      expect(value1).to be(false)
+      expect(value2).to be(true)
     end
 
     it "returns arg unchanged" do
+      value = nil
+      test = ->(arg) { value = arg.raw }
+      subject.argie(%w[a], &test)
+      expect(value).to eq("a")
     end
   end
 
   describe "#unused?" do
     it "returns true by default" do
+      value = nil
+      test = ->(arg) { value = arg.unused? }
+      subject.argie(%w[a], &test)
+      expect(value).to be(true)
     end
 
     it "returns false if matched short option" do
+      value = nil
+      test = ->(arg) { arg.option?("a") and value = arg.unused? }
+      subject.argie(%w[-a], &test)
+      expect(value).to be(false)
     end
 
     it "returns false if matched long option" do
+      value = nil
+      test = ->(arg) { arg.option?("long-a") and value = arg.unused? }
+      subject.argie(%w[--long-a], &test)
+      expect(value).to be(false)
     end
 
     it "returns false after #value" do
+      value = nil
+      test = ->(arg) { arg.value; value = arg.unused? }
+      subject.argie(%w[a], &test)
+      expect(value).to be(false)
     end
   end
 
   describe "#unused!" do
     it "negates used mark" do
+      value1 = value2 = nil
+      test = ->(arg) { arg.value; value1 = arg.unused?; arg.unused!; value2 = arg.unused? }
+      subject.argie(%w[a], &test)
+      expect(value1).to be(false)
+      expect(value2).to be(true)
     end
 
     it "returns self" do
+      value1 = value2 = nil
+      test = ->(arg) { value1 = arg; value2 = arg.unused! }
+      subject.argie(%w[a], &test)
+      expect(value1).to eq(value2)
     end
   end
 
   describe "#used?" do
     it "returns false by default" do
+      value = nil
+      test = ->(arg) { value = arg.used? }
+      subject.argie(%w[a], &test)
+      expect(value).to be(false)
     end
 
     it "returns true if matched short option" do
+      value = nil
+      test = ->(arg) { arg.option?("a") and value = arg.used? }
+      subject.argie(%w[-a], &test)
+      expect(value).to be(true)
     end
 
     it "returns true if matched long option" do
+      value = nil
+      test = ->(arg) { arg.option?("long-a") and value = arg.used? }
+      subject.argie(%w[--long-a], &test)
+      expect(value).to be(true)
     end
 
     it "returns true after #value" do
+      value = nil
+      test = ->(arg) { arg.value; value = arg.used? }
+      subject.argie(%w[a], &test)
+      expect(value).to be(true)
     end
   end
 
   describe "#used!" do
     it "resets used mark" do
+      value1 = value2 = nil
+      test = ->(arg) { value1 = arg.used?; arg.used!; value2 = arg.used? }
+      subject.argie(%w[a], &test)
+      expect(value1).to be(false)
+      expect(value2).to be(true)
     end
 
     it "returns self" do
+      value1 = value2 = nil
+      test = ->(arg) { value1 = arg; value2 = arg.used! }
+      subject.argie(%w[a], &test)
+      expect(value1).to eq(value2)
     end
   end
 end
