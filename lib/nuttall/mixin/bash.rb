@@ -35,10 +35,8 @@ module Mixin
     def bash(script, *opts, **opts2)
       bad_opts = opts + opts2.keys - %i[echo errs]
       raise "Invalid opts: #{bad_opts}" if bad_opts.any?
-
       echo_to = opts2[:echo].then { |opt| (IO === opt) ? opt : (opt && $stdout) }
       errs_to = opts2[:errs].then { |opt| (IO === opt) ? opt : (opt && $stderr) }
-
       opts.each do |opt|
         opt == :echo and echo_to = $stdout
         opt == :errs and errs_to = $stderr
@@ -48,24 +46,26 @@ module Mixin
       pipr_e, pipw_e = IO.pipe # Process's stderr redirect
       begin
         io_s, io_e, io_a = Array.new(3) { StringIO.new } # Capture stdout, stderr, stdout+stderr
-        buff_s, buff_e = "".b, "".b # Buffers for stdout, stderr
         stile = Mutex.new
 
-        start  = -> { spawn(["bash", "#{self.class.name}-bash"], "-c", script, out: pipw_s, err: pipw_e) }
+        start  = -> { spawn(["bash", "#{my_classname}-bash"], "-c", script, out: pipw_s, err: pipw_e) }
         finish = ->(_) { pipw_s.close; pipw_e.close }
 
-        bufwrt = ->(buff, io) do
-          io.write(buff)
-          errs_to.write(buff) if errs_to && io == io_e
-          stile.synchronize do
-            io_a.write(buff)
-            echo_to.write(buff) if echo_to
+        do_io = ->(io_in, io_out) do
+          do_errs_to = errs_to && io_out == io_e
+          while (line = io_in.gets)
+            io_out.write(line)
+            errs_to.write(line) if do_errs_to
+            stile.synchronize do
+              io_a.write(line)
+              echo_to.write(line) if echo_to
+            end
           end
         end
 
         process  = Thread.new { Process::Status.wait(start[]).tap(&finish) }
-        reader_s = Thread.new { bufwrt[buff_s, io_s] while pipr_s.read(256, buff_s) }
-        reader_e = Thread.new { bufwrt[buff_e, io_e] while pipr_e.read(256, buff_e) }
+        reader_s = Thread.new { do_io[pipr_s, io_s] }
+        reader_e = Thread.new { do_io[pipr_e, io_e] }
 
         stat = process.join.value
         [reader_s, reader_e].each { _1.join }
