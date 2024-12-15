@@ -121,7 +121,7 @@ module Mixin
       #
     class AskConfirmClass
       def self.run(prompt, choices)
-        def_reply = choices.gsub(/[a-z]+/, "")
+        def_reply = choices.gsub(/[^A-Z]+/, "")
         raise "Only 1 uppercase is allowed: #{choices.inspect}" if def_reply.size > 1
 
         puts ""
