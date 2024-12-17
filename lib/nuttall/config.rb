@@ -56,7 +56,7 @@ module Nuttall
     def load_user_file(path=nil, ignore_err: false)
       path ||= user_file
       YAML.load(File.read(path)).overlay(user_file_defaults_hash).as_struct
-    rescue
+    rescue StandardError, Errno::ENOENT
       raise if ! ignore_err
       user_file_defaults
     end
