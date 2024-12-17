@@ -73,7 +73,7 @@ module Create
     end
 
     def reset_ignored_values(ignore_changed)
-      orig_settings = config.load_user_file
+      orig_settings = config.load_user_file(ignore_err: true)
       ignore_changed.each do |tuple|
         dig_args, key = tuple[0, 2]
         tuple << settings.dig(*dig_args)[key]
