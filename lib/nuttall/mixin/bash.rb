@@ -48,7 +48,7 @@ module Mixin
         io_s, io_e, io_a = Array.new(3) { StringIO.new } # Capture stdout, stderr, stdout+stderr
         stile = Mutex.new
 
-        start  = -> { spawn(["bash", "#{my_classname}-bash"], "-c", script, out: pipw_s, err: pipw_e) }
+        start  = -> { spawn(["bash", "#{self.class.name}-bash"], "-c", script, out: pipw_s, err: pipw_e) }
         finish = ->(_) { pipw_s.close; pipw_e.close }
 
         do_io = ->(io_in, io_out) do
