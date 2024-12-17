@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+#
+# Entrypoint logic, starts up all the things needed in the container.
+#
+# Copyright 2024 Dan Higgins
+# SPDX-License-Identifier: Apache-2.0
+
+app_dir = File.expand_path("..", __dir__)
+
+require "#{app_dir}/lib/autoloader"
+
+exit(Nuttall::Entrypoint.new(ARGV).run) if $0 == __FILE__

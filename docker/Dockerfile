@@ -2,6 +2,8 @@ FROM alpine:3.20.3
 
 COPY app /app
 
+WORKDIR /app
+
 RUN \
   apk add --no-cache \
     cryptsetup \
@@ -18,7 +20,6 @@ RUN \
     && \
   : "Install the app's gems" && \
   apk add --no-cache build-base ruby-dev libffi-dev && \
-  cd /app && \
   bundle config set --local without test && \
   bundle install \
     && \
@@ -27,3 +28,6 @@ RUN \
 
 # Layers above should remain cached, only this one cannot be cached
 COPY disk_key* /app/
+
+ENTRYPOINT ["ruby", "/app/exe/nuttall-e"]
+# ...CMD is now empty
