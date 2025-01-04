@@ -3,7 +3,7 @@
 #
 # Entrypoint logic, starts up all the things needed in the container.
 #
-# Copyright 2024 Dan Higgins
+# Copyright 2024-2025 Dan Higgins
 # SPDX-License-Identifier: Apache-2.0
 
 app_dir = File.expand_path("..", __dir__)
