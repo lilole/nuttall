@@ -18,6 +18,6 @@ dependencies:
 
 license: Apache-2.0
 
-repository:    https://github.com/lilole/nuttall/tree/v0.1-dev
+repository:    https://github.com/lilole/nuttall
 homepage:      https://github.com/lilole/nuttall/wiki
 documentation: https://github.com/lilole/nuttall/wiki
