@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 #
-# Copyright 2024 Dan Higgins
+# Copyright 2024-2025 Dan Higgins
 # SPDX-License-Identifier: Apache-2.0
 
 RSpec.describe Nuttall::Mixin::Argie do
@@ -209,7 +209,7 @@ RSpec.describe Nuttall::Mixin::Argie do
 
     it "raises on non-range" do
       test = ->(arg) { arg.consume(1) if arg.is?("b") }
-      expect { subject.argie(%w[a b c d e], &test) }.to raise_error(/undefined method `first'/)
+      expect { subject.argie(%w[a b c d e], &test) }.to raise_error(/undefined method ['`]first'/)
     end
 
     it "marks used" do
