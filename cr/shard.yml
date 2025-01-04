@@ -1,0 +1,27 @@
+# Copyright 2024-2025 Dan Higgins
+# SPDX-License-Identifier: Apache-2.0
+
+name: nuttall-cr
+version: 0.1-dev
+
+authors:
+  - Dan Higgins <dan@danamis.com>
+
+description: |
+  Crystal components of the Nuttall containerized logging service.
+
+crystal: ">= 1.14"
+
+dependencies:
+  {}
+  #markd:
+  #  github: icyleaf/markd
+  #reply:
+  #  github: I3oris/reply
+  #  commit: db423dae3dd34c6ba5e36174653a0c109117a167
+
+license: Apache-2.0
+
+repository:    https://github.com/lilole/nuttall/tree/v0.1-dev
+homepage:      https://github.com/lilole/nuttall/wiki
+documentation: https://github.com/lilole/nuttall/wiki
