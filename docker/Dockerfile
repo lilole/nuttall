@@ -1,3 +1,6 @@
+# Copyright 2024-2025 Dan Higgins
+# SPDX-License-Identifier: Apache-2.0
+
 FROM alpine:3.20.3
 
 COPY app /app
