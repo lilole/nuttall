@@ -3,6 +3,8 @@
 # Copyright 2024-2025 Dan Higgins
 # SPDX-License-Identifier: Apache-2.0
 
+require "stringio"
+
 module Nuttall
 module Mixin
   module Bash
