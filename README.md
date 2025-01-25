@@ -25,6 +25,9 @@ Features:
 - Configurable automatic storage growth and management.
 - Support queries across a cluster of log services.
 
+Sample Session:<br>
+![Sample Session](README/screenshot-20250124.jpg?raw=true "Sample Session")
+
 ## Getting Started
 
 Requirements:
