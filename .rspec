@@ -1,1 +1,1 @@
---require spec_helper --format progress
+--require spec_helper --format progress --fail-fast

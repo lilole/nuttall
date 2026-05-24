@@ -5,10 +5,13 @@
 
 module Nuttall
   module Extensions
+    # Order matters. Deeper (more base level) exts should apply first.
+    ALL = %i[Object Numeric]
+
     def self.apply
-      # Order matters. Deeper (more base level) exts should apply first.
-      Object.apply
-      Numeric.apply
+      ALL.each { |name|
+        ::Object.const_get("#{self.name}::#{name}").apply
+      }
     end
   end
 end

@@ -5,7 +5,7 @@
 
 module Nuttall
   class Entrypoint
-    include Container::Startup
+    include Nuttall::Container::Startup
 
     def usage(msg="Internal only.", exit_code=1)
       $stderr << <<~END

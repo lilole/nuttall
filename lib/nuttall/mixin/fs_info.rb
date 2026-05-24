@@ -8,7 +8,7 @@ require "yaml"
 module Nuttall
 module Mixin
   module FsInfo
-    include Bash
+    include Nuttall::Mixin::Bash
 
     ### Return a hash with information about the filesystem the given path is on.
       # The hash will have keys such as:

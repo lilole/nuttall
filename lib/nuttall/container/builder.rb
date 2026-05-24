@@ -10,8 +10,8 @@ require "shellwords"
 module Nuttall
 module Container
   class Builder
-    include Mixin::Asker
-    include Mixin::Bash
+    include Nuttall::Mixin::Asker
+    include Nuttall::Mixin::Bash
 
     attr_reader :config, :disk_key, :settings
 
