@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 require_relative "aut_aut"
-AutAut.setup
+AutAut.setup exclude: '^exe'
 
 module Nuttall
   VERSION = "0.6.50"

@@ -5,10 +5,13 @@
 
 load "../ultisel/load/arma.rake" # ...sorry this is not public yet
 
+arma.source_dirs << "overlay"
+
 arma.import arma: "../ultisel", version: nil, build: true,
   include: [
     Ulse.minimum_custom_includes,
-    '^ulse/ext/(numeric|object|string)\.rb',
+    '^ulse/argie\.rb',
+    '^ulse/ext/(module|numeric|object|string)\.rb',
     '^ulse/ext/numeric/commafy\.rb',
     '^ulse/ext/object/(as_grouping|grouping|transform|truthy_falsey)\.rb',
     '^ulse/ext/string/ellipt\.rb'

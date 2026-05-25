@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+#
+# Main CLI tool for all user operations.
+#
+# Copyright 2024-2025 Dan Higgins
+# SPDX-License-Identifier: Apache-2.0
+
+require_relative "../nuttall"
+
+exit(Nuttall::Cli.new(ARGV).run)

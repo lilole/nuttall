@@ -5,7 +5,6 @@
 
 module Nuttall
   class Cli
-    include Nuttall::Mixin::Argie
     Config = Nuttall::Config
 
     def self.usage(message=nil, exit_code=1)
@@ -13,7 +12,7 @@ module Nuttall
       $stderr << <<~END
 
         Description:
-          #{prog} v#{Nuttall::VERSION}
+          #{prog} #{Nuttall::VERSION}
           Main management tool for Nuttall logging systems.
 
         Message:
@@ -61,7 +60,7 @@ module Nuttall
     end
 
     def parse_args
-      argie(args) do |arg|
+      Ulse.argie(args) do |arg|
         if arg.option?
           arg.option?(%w[h ? help]) { Cli.usage }
           Cli.usage("Invalid option: #{arg.value}") if arg.unused?
