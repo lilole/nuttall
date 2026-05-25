@@ -7,61 +7,19 @@ module Nuttall
 module Extensions
   module Object
     def self.apply
-      ::Object.include AsStruct
+      ::Ulse::Ext::Object::AsGrouping.apply
+      ::Ulse::Ext::Object::Transform.apply
+      ::Ulse::Ext::Object::TruthyFalsey.apply
       ::Object.include DeepToH
       ::Object.include Dig2
-      ::Object.include Ellipsify
-      ::Object.include FalseyTruthy
       ::Object.include Overlay
-      ::Object.include Visit
     end
 
-    # Order matters, e.g. Visit must be defined before DeepToH
-
-    module AsStruct
-      ### Convert `self` if it is Hash-like, and any Hash-like elements in `self`,
-        # into Struct objects, so that name keys can be accessed as method names.
-        # This has a few advantages, such as (a) the code is easier to read, and
-        # (b) typos in entry names will raise, and (c) entry access is faster than
-        # OpenStruct.
-        #
-      def as_struct
-        if respond_to?(:keys) && respond_to?(:values)
-          Struct.new(*keys.map(&:to_sym)).new(*values.map(&:as_struct))
-        elsif respond_to?(:map)
-          map(&:as_struct)
-        else
-          self
-        end
-      end
-    end # AsStruct
-
-    module Visit
-      ### Recursively visit each entry in `self` if it is Hash- or Array-like.
-        # The given block will receive 3 args: (1) the "parent" object of the
-        # entry, (2) the index or key of the entry, and (3) the value of the
-        # entry. These 3 args allow the block to change any aspect of the entry,
-        # including its key, and the block may even remove it.
-        # A copy of `self` is returned if any recursion occurs.
-        #
-      def visit(&block)
-        if    respond_to?(:each_pair) then pairs = each_pair.to_a
-        elsif respond_to?(:each)      then pairs = (0...size).zip(self)
-        else  return self
-        end
-        dup.tap do |self2|
-          pairs.each { |k, v| block[self2, k, v.visit(&block)] }
-        end
-      end
-    end # Visit
-
     module DeepToH
-      include Visit
-
       ### Recursively call `to_h` on `self` and on entries within `self`.
         #
       def deep_to_h
-        to_h.visit { |parent, k, v| parent[k] = v.to_h if v != nil && v.respond_to?(:to_h) }
+        to_h.transform { |p, k, v| v != nil && v.respond_to?(:to_h) ? v.to_h : v }
       end
     end # DeepToH
 
@@ -72,36 +30,6 @@ module Extensions
         indexes.empty? ? self : dig(*indexes)
       end
     end # Dig2
-
-    module Ellipsify
-      ### Convert to a String with `#inspect`, and truncate to a max length if
-        # needed. If truncated, place a configurable ellipsis delimiter at some
-        # fraction of the length.
-        #
-      def ellipsify(max_len=40, delim: "...", place: 0.5, keep_quotes: true)
-        max_len = delim.size if max_len < delim.size
-
-        str = inspect
-        str.gsub!(/\A"|"\z/, "") if ! keep_quotes
-
-        return str if str.size <= max_len
-
-        left_sz  = [(place * max_len - 0.5 * delim.size).round, 0].max
-        right_sz = [max_len - left_sz - delim.size, 0].max
-        str[0, left_sz] << delim << str[-right_sz, right_sz]
-      end
-    end # Ellipsify
-
-    ### Add `#falsey?` and `#truthy?` methods that handle String values with
-      # variations of "true" or "yes".
-      #
-    module FalseyTruthy
-      @@truthy_regex = /\At(rue)?\z|\Ay(es)?\z/i
-
-      def falsey? = ! truthy?
-
-      def truthy? = (String === self) ? @@truthy_regex.match?(self.strip) : !! self
-    end # FalseyTruthy
 
     module Overlay
       include Dig2

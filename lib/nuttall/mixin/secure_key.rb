@@ -21,9 +21,9 @@ module Mixin
     end
 
     def self.assert_valid_bits(bits)
-      bits.is_a?(Integer) or raise ArgumentError, "Bits must be Integer: #{bits.ellipsify}"
-      bits > 0            or raise ArgumentError, "Bits must be positive: #{bits}"
-      bits % 8 == 0       or raise ArgumentError, "Bits must be multiple of 8: #{bits}"
+      Integer === bits or raise ArgumentError, "Bits must be Integer: #{bits.to_s.ellipt(38).inspect}"
+      bits > 0         or raise ArgumentError, "Bits must be positive: #{bits}"
+      bits % 8 == 0    or raise ArgumentError, "Bits must be multiple of 8: #{bits}"
     end
 
     def self.best_typable_length(bits)
