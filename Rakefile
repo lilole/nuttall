@@ -11,5 +11,5 @@ arma.import arma: "../ultisel", version: nil, build: true,
     '^ulse/ext/(numeric|object|string)\.rb',
     '^ulse/ext/numeric/commafy\.rb',
     '^ulse/ext/object/(as_grouping|grouping|transform|truthy_falsey)\.rb',
-    '^ulse/ext/string/ellipt\.rb',
+    '^ulse/ext/string/ellipt\.rb'
   ]
