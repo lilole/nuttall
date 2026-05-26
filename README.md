@@ -37,11 +37,11 @@ Requirements:
 
 To run:
 1. _This is not ready for general use._
-1. _[In the future...]_<br>Install the Rubygem:
+1. ~~Install the Rubygem:~~
     ```shell
     $ gem install nuttall
     ```
-1. Or, run directly from the git source:
+1. ~~Or, run directly from the git source:~~
     ```shell
     $ git clone git@github.com:lilole/nuttall
     $ cd nuttall
