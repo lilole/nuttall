@@ -5,7 +5,7 @@
 
 load "../ultisel/load/arma.rake" # ...sorry this is not public yet
 
-arma.source_dirs << "overlay"
+arma.source_dirs << "lib2"
 
 arma.import arma: "../ultisel", version: nil, build: true,
   include: [
