@@ -1,39 +1,16 @@
 # frozen_string_literal: true
 #
-# Copyright 2024-2025 Dan Higgins
+# Copyright 2024-2026 Dan Higgins
 # SPDX-License-Identifier: Apache-2.0
 
 module Nuttall
 module Extensions
-  module Object
+  module Hash
     def self.apply
-      ::Ulse::Ext::Object::AsGrouping.apply
-      ::Ulse::Ext::Object::Transform.apply
-      ::Ulse::Ext::Object::TruthyFalsey.apply
-      ::Object.include DeepToH
-      ::Object.include Dig2
-      ::Object.include Overlay
+      @applied ||= !! ::Hash.include(Overlay)
     end
 
-    module DeepToH
-      ### Recursively call `to_h` on `self` and on entries within `self`.
-        #
-      def deep_to_h
-        to_h.transform { |p, k, v| v != nil && v.respond_to?(:to_h) ? v.to_h : v }
-      end
-    end # DeepToH
-
-    module Dig2
-      ### A smarter `dig()`, which simply returns `self` if there are no args.
-        #
-      def dig2(*indexes)
-        indexes.empty? ? self : dig(*indexes)
-      end
-    end # Dig2
-
     module Overlay
-      include Dig2
-
       def self.recurse(obj)
         if    obj.respond_to?(:each_pair) then pairs = obj.each_pair
         elsif obj.respond_to?(:each)      then pairs = (0...obj.size).zip(obj)
@@ -55,11 +32,11 @@ module Extensions
         end
       end
 
-      ### Soft merge another Hash- or Array-like object into `self`. This simply
-        # means that any keys not present in `self` will be copied over from the
-        # other object. Nested Hash- and Array-like objects are handled
-        # recursively. Returns `self`.
-        #
+      ## Soft merge another Hash- or Array-like object into `self`. This simply
+       # means that any keys not present in `self` will be copied over from the
+       # other object. Nested Hash- and Array-like objects are handled
+       # recursively. Returns `self`.
+       #
       def overlay(other)
         seen = Set[]
         Overlay.leaf_paths(other).each do |path|

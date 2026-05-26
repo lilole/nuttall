@@ -6,10 +6,16 @@
 module Nuttall
   module Extensions
     def self.apply
-      require_relative "extensions/object" # BUG: AutAut should handle this
-      ::Nuttall::Extensions::Object.apply
-      ::Ulse::Ext::Numeric::Commafy.apply
-      ::Ulse::Ext::String::Ellipt.apply
+      @applied ||= begin
+        ::Ulse::Ext::Object::AsGrouping.apply
+        ::Ulse::Ext::Object::Dig2.apply
+        ::Ulse::Ext::Object::Transform.apply
+        ::Ulse::Ext::Object::TruthyFalsey.apply
+        ::Ulse::Ext::Numeric::Commafy.apply
+        ::Ulse::Ext::String::Ellipt.apply
+
+        ::Nuttall::Extensions::Hash.apply
+      end
     end
   end
 end

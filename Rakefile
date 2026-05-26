@@ -13,7 +13,7 @@ arma.import arma: "../ultisel", version: nil, build: true,
     '^ulse/argie.rb$' \
     '|^ulse/ext/module(/attrs)?.rb$' \
     '|^ulse/ext/numeric(/commafy)?.rb$' \
-    '|^ulse/ext/object(/(as_grouping|grouping|transform|truthy_falsey))?.rb$' \
+    '|^ulse/ext/object(/(as_grouping|dig2|grouping|transform|truthy_falsey))?.rb$' \
     '|^ulse/ext/string(/ellipt)?.rb$' \
     '|^ulse/mixin/(asker|bash).rb$'
   ]

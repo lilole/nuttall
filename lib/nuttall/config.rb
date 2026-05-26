@@ -61,7 +61,7 @@ module Nuttall
       user_file_defaults
     end
 
-    def user_file_text = user_file_settings.deep_to_h.to_yaml
+    def user_file_text = user_file_settings.as_group.to_yaml
 
     def save_user_file(path=nil)
       path ||= user_file
