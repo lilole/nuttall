@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 #
-# Copyright 2024-2025 Dan Higgins
+# Copyright 2024-2026 Dan Higgins
 # SPDX-License-Identifier: Apache-2.0
 
 module Nuttall
-  class Cli
-    Config = Nuttall::Config
-
-    def self.usage(message=nil, exit_code=1)
+module Cli
+  module Usage
+    def usage(message=nil, exit_code=1)
       prog = "nuttall"
       $stderr << <<~END
 
@@ -42,36 +41,6 @@ module Nuttall
       END
       exit(exit_code) if exit_code && exit_code >= 0
     end
-
-    attr_reader :args, :config
-
-    def initialize(args)
-      @args = args
-      @config = Config.new
-    end
-
-    def run
-      parse_args
-      Core.new(config).run
-      true
-    rescue => e
-      $stderr << e.full_message
-      false
-    end
-
-    def parse_args
-      Ulse.argie(args) do |arg|
-        if arg.option?
-          arg.option?(%w[h ? help]) { Cli.usage }
-          Cli.usage("Invalid option: #{arg.value}") if arg.unused?
-        else
-          arg.is?(valid_ops) { config.add_operation(arg.value) }
-          Cli.usage("Invalid arg: #{arg.value}") if arg.unused?
-        end
-      end
-      Cli.usage("At least 1 operation is required.") if config.operations.empty?
-    end
-
-    def valid_ops = Config.valid_operations
   end
+end
 end

@@ -9,9 +9,10 @@ module Nuttall
 module Op
 module Create
   class Core
-    include Nuttall::Mixin::Asker
     include Nuttall::Mixin::FsInfo
     include Nuttall::Mixin::SecureKey
+    include Ulse::Mixin::Asker
+    Step = Nuttall::Op::Create::Step
 
     class SettingsAborted < RuntimeError; end
 

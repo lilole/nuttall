@@ -8,4 +8,4 @@
 
 require_relative "../nuttall"
 
-exit(Nuttall::Cli.new(ARGV).run)
+exit(Nuttall::Cli::Core.new(ARGV).run)
